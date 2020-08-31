@@ -737,10 +737,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 539089cfe4dd8c149854dff36789b0b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  endEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1506752710}
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   path: {fileID: 195522643}
   speed: 300
   turningSpeed: 10
-  isLoop: 1
+  isLoop: 0
   isMove: 1
 --- !u!54 &1506752712
 Rigidbody:

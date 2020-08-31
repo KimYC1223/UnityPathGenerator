@@ -3,98 +3,167 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+//===================================================================================================
+//
+//  PATH FOLLWER CLASS
+//
+//  Script to follow the path created by "Path Generator" class
+//  Path Generator가 만든 Path를 따라가는 기능
+//
+//---------------------------------------------------------------------------------------------------
+//  2020.08.30 _ KimYC1223
+//===================================================================================================
 
-[System.Serializable]
-public class EndEvent : UnityEngine.Events.UnityEvent<GameObject> { }
+[RequireComponent(typeof(Rigidbody))]
 
 public class PathFollower : MonoBehaviour
 {
-    public EventArgs endEvent;
-    public PathGenerator path;
-    public float speed = 100f;
-    public float turningSpeed = 10f;
-    public bool isLoop = false;
-    public bool isMove = true;
+    [System.Serializable]
+    public class EndEvent : UnityEngine.Events.UnityEvent { }
 
-    private Rigidbody TargetRigidbody;
-    private GameObject Target;
-    private GameObject NextAngle;
-    private int AngleStep = 1;
+    [SerializeField]
+    public EndEvent endEvent;                   // method to run when this is done moving
 
-    
+    public PathGenerator path;                  // choose the path to move     
+    public float speed = 100f;                  // move speed
+    public float turningSpeed = 10f;            // rotation speed 
+    public bool isLoop = false;                 // does it move repeatedly?
+    public bool isMove = true;                  // is this moving now?
 
+    private Rigidbody targetRigidbody;          // the rigidbody of the object to move
+    private GameObject target;                  // object to move;
+    private GameObject nextPath;                // the direction the obejct will move
+    private int pathIndex = 1;                  // the path index the object will move
+    private float distanceThreshold = 0.2f;     // distance threshold
+
+    //===============================================================================================
+    // Start method
+    //-----------------------------------------------------------------------------------------------
+    // init variable & position
+    // 각종 변수와 position 초기화
+    //===============================================================================================
     void Start()
     {
-        TargetRigidbody = GetComponent<Rigidbody>();
-        if (path == null) {
-            Debug.LogError("경로가 없음");
-        }
-        Target = this.gameObject;
-        NextAngle = path.PathList[1];
+        targetRigidbody = GetComponent<Rigidbody>();
+        if (path == null) 
+            Debug.LogError("no path\n경로가 없음");
+        target = this.gameObject;
+        nextPath = path.PathList[1];
         this.transform.position = path.PathList[0].transform.position;
-        if (NextAngle == null)
-            Debug.Log("gg");
     }
-    
-    // Update is called once per frame
+
+    //===============================================================================================
+    // Fixed update method
+    //-----------------------------------------------------------------------------------------------
+    // set velocity & direction, and calculate distance
+    // 속도와 방향 설정 후 거리 계산
+    //===============================================================================================
     void FixedUpdate()
     {
+        //===========================================================================================
+        //  If it is not moving, stop object and return
+        //  움직이지 않는다면, 물체를 멈추고 종료
+        //===========================================================================================
         if (!isMove) {
-            TargetRigidbody.velocity = new Vector3(0, 0, 0);
+            targetRigidbody.velocity = new Vector3(0, 0, 0);        // Stop
             return;
         }
-        // =====================================================================
-        //  자동차가 가이드를 바라보게하는 기능
-        // =====================================================================
-        Vector3 offset = NextAngle.transform.position - Target.transform.position;
+
+        //===========================================================================================
+        // Function to make objects look at the next path
+        // 물체가 다음 Path를 바라보게하는 기능
+        //===========================================================================================
+        Vector3 offset = nextPath.transform.position - target.transform.position;
         offset.Normalize();
         Quaternion q = Quaternion.LookRotation(offset);
-        TargetRigidbody.rotation =
-            Quaternion.Slerp(TargetRigidbody.rotation,
+        targetRigidbody.rotation =
+            Quaternion.Slerp(targetRigidbody.rotation,
                                         q, turningSpeed * Time.deltaTime);
 
-
-        // =====================================================================
-        //  자동차가 가이드를 따라가게 하는 기능
-        // =====================================================================
+        //===========================================================================================
+        // Function to make objects follow a path
+        // 물체가 path를 따라가게 하는 기능
+        //===========================================================================================
         offset.Normalize();
-        TargetRigidbody.velocity = offset * speed * Time.deltaTime;
+        targetRigidbody.velocity = offset * speed * Time.deltaTime;
 
-        // 두 거리 계산
-        float Distance = Vector3.Distance(NextAngle.transform.position,
-                                          Target.transform.position);
+        // calculate distance between object and next path
+        // 물체와 next path 경로 사이의 거리 계산
+        float Distance = Vector3.Distance(nextPath.transform.position,
+                                          target.transform.position);
 
-        // =====================================================================
-        //  가이드에 가까워 졌을 경우
-        // =====================================================================
-        if (Distance < 0.2f) {
-            
-            if(AngleStep >= path.PathList.Count) {
+        //===========================================================================================
+        // If it is close enough to the next path
+        // next path에 충분히 가까워졌을 경우
+        //===========================================================================================
+        if (Distance < distanceThreshold) {
+
+            if (pathIndex < path.PathList.Count) {
+            //=======================================================================================
+            // If the end of the path list is not reached, set the next path by increase path Index
+            // path 리스트의 끝에 도달하지 못했다면, path Index ++ 를 통해 next path 설정
+            //=======================================================================================
+                nextPath = path.PathList[pathIndex++];
+            } else {
+                //===================================================================================
+                // If the object reached end of the path list,
+                // path 리스트 끝에 도달했다면, 즉, 최종 목적지에 도달했을때
+                //===================================================================================
                 if (path.isClosed) {
-                    NextAngle = path.PathList[0];
-                    AngleStep = 0;
+                    //===============================================================================
+                    // If current path is closed path, back to zero of the path list
+                    // 현재 path가 닫힌 경로이면, 다시 pathList[0]을 향해 전진
+                    //===============================================================================
+                    nextPath = path.PathList[0];
+                    pathIndex = 0;
                 } else {
-                    if(isLoop) {
-                        NextAngle = path.PathList[1];
-                        AngleStep = 1;
+                    //===============================================================================
+                    // If current path is open path,
+                    // 현재 path가 열린 경로이면,
+                    //===============================================================================
+                    if (isLoop) {
+                        //===========================================================================
+                        // and object move repeatedly reinit position & value;
+                        // 그리고 물체가 반복적으로 움직인다면, position과 변수 다시 초기화
+                        //===========================================================================
+                        nextPath = path.PathList[1];
+                        pathIndex = 1;
                         this.transform.position = path.PathList[0].transform.position;
-                        Target.transform.LookAt(path.PathList[1].transform);
+                        target.transform.LookAt(path.PathList[1].transform);
+                        // If endEvent isn't null, run method.
+                        // endEvent가 null이 아니면, method를 실행
+                        if (endEvent != null)
+                            endEvent.Invoke();
                     } else {
+                        //==========================================================================
+                        // If object move once, Stop move and if endEvent isn't null, run method.
+                        // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
+                        //==========================================================================
                         StopFollow();
+                        if (endEvent != null)
+                            endEvent.Invoke();
                     }
                 }
-            } else {
-                NextAngle = path.PathList[AngleStep++];
             } 
         }
     }
 
-
+    //===============================================================================================
+    // Stop Follow method
+    //-----------------------------------------------------------------------------------------------
+    // stop move by set isMove false
+    // 정지
+    //===============================================================================================
     public void StopFollow() {
         isMove = false;
     }
 
+    //===============================================================================================
+    // Start Follow method
+    //-----------------------------------------------------------------------------------------------
+    // Start move by set isMove true
+    // 움직임
+    //===============================================================================================
     public void StartFollow() {
         isMove = true;
     }

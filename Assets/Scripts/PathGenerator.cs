@@ -3,24 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//===================================================================================================
+//
+//  PATH PATH GENERATOR CLASS
+//
+//  Script to make followable path the based on Bézier Curve
+//  Path Generator가 만든 Path를 따라가는 기능
+//
+//---------------------------------------------------------------------------------------------------
+//  2020.08.30 _ KimYC1223
+//===================================================================================================
+
 public class PathGenerator : MonoBehaviour {
-    public GameObject Flag;
-    public GameObject StartFlag;
-    public GameObject Angle;
-    public GameObject Guide;
-    public bool isClosed = true;
-    public bool isDebugObject = false;
-    public bool isDebugLine = false;
-    public int PathDensity = 30;
+    public GameObject Flag;                 // Visual maker of stopover
+    public GameObject StartFlag;            // Visual maker of start point
+    public GameObject Angle;                // Visual maker of angle setter
+    public GameObject Guide;                // Visual maker of path guide
+    public bool isClosed = true;            // is this path closed?
+    public bool isDebugObject = false;      // show Flag and Angle objects in play mode?
+    public bool isDebugLine = false;        // show guide objects in play mode?
+    public int PathDensity = 30;            // Density of guide objects between Flags
     
-    public List<GameObject> FlagList = new List<GameObject>();
-    public List<GameObject> AngleList = new List<GameObject>();
-    internal List<GameObject> PathList = new List<GameObject>();
+    public List<GameObject> FlagList = new List<GameObject>();    // List of Flag objects
+    public List<GameObject> AngleList = new List<GameObject>();   // List of Angle objects
+    internal List<GameObject> PathList = new List<GameObject>();  // List of Path objects
+    private Transform Roads;                                      // Root object of guide objects
 
-    private Transform Roads;
-
+    //===============================================================================================
+    // Awake method
+    //-----------------------------------------------------------------------------------------------
+    // init variable & position
+    // 각종 변수와 position 초기화
+    //===============================================================================================
     public void Awake() {
-        if(PathDensity < 2) {
+        //===========================================================================================
+        //  check path density is bigger than 1
+        //  path density가 1보다 큰 지 확인
+        //===========================================================================================
+        if (PathDensity < 2) {
 #if UNITY_EDITOR
             Debug.LogError("Path Density is too small. (must >= 2)");
             UnityEditor.EditorApplication.isPlaying = false;
@@ -31,6 +51,10 @@ public class PathGenerator : MonoBehaviour {
 #endif
         }
 
+        //===========================================================================================
+        //  Get root object of guides for Instantiate guide object
+        //  guide 오브젝트를 Instantiate 하기 위한 부모 객체 가져오기
+        //===========================================================================================
         Transform[] childs = this.transform.GetComponentsInChildren<Transform>();
         foreach(Transform t in childs) {
             if (t.gameObject.name == "Roads")
