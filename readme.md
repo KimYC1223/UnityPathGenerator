@@ -18,7 +18,7 @@ You can make this car with Animator, but there are some problems.
 
 <br>
 
-#### 1-1 . It is difficult to handling object between keyframes.
+### 1-1 . It is difficult to handling object between keyframes.
 
 ![image](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure2.png?raw=true)
 
@@ -30,7 +30,7 @@ But If you implement this with Unity Animator, the Animator will choose the shor
 
 <br>
 
-#### 1-2 . It is difficult to move at a constant speed
+### 1-2 . It is difficult to move at a constant speed
 
 ![image](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure3.png?raw=true)
 
@@ -52,7 +52,7 @@ But if the path is curved, It will be very hard to calculate the ratio.
 
 <br>
 
-#### 1-3 . Bézier Curve
+### 1-3 . Bézier Curve
 
 The common issue of problems 1-1 and 1-2 is'curve'.
 
@@ -120,7 +120,7 @@ So let's get started.
 
 <br>
 
-#### 3-1 . Import package
+## 3-1 . Import package
 
 3-1-1 . Download [latest release unity package](https://github.com/KimYC1223/UnityPathGenerator/releases/tag/1.0) or clone this repo.
 
@@ -128,7 +128,7 @@ So let's get started.
 
 ---
 
-#### 3-2 . Generate Path
+## 3-2 . Generate Path
 
 3-2-1 . In your scene, create empty gameobject. (and rename to "Path".)
 
@@ -144,7 +144,7 @@ So let's get started.
 
 <br>
 
-##### 3-2-4-1. **Flag**
+### 3-2-4-1. **Flag**
 
 ​		Put in a game object (prefab) to represent the **"Flag".**
 
@@ -156,9 +156,9 @@ So let's get started.
 
 ​		***(This is the same role as P0 and P2 in the picture above.)***
 
-<br><br>
+<br>
 
-##### 3-2-4-2 . **Start Flag**
+### 3-2-4-2 . **Start Flag**
 
 ​		Put in a game object (prefab) to represent the **"Start Flag"**
 
@@ -168,9 +168,9 @@ So let's get started.
 
 ​		**Start Flag is the 0th Flag (FlagList[0]), which is the point where the object will start first.**
 
-<br><br>
+<br>
 
-##### 3-2-4-3 . **Angle**
+### 3-2-4-3 . **Angle**
 
 ​		Put in a game object (prefab) to represent the **"Angle"**
 
@@ -184,9 +184,9 @@ So let's get started.
 
 ​		***(It is the same role as P1 in the picture above.)***
 
-<br><br>
+<br>
 
-##### 3-2-4-4 . **Guide**
+### 3-2-4-4 . **Guide**
 
 ​		Put in a game object (prefab) to represent the **"Guide (Path)"**
 
@@ -196,29 +196,29 @@ So let's get started.
 
 ​		**Guide visually expresses the path determined through Flags and Angles.**
 
-<br><br>
+<br>
 
-##### 3-2-4-5 . **Is Close**
+### 3-2-4-5 . **Is Close**
 
 ​		choose path type (Closed path or open path).
 
 ​		If this is true, auto connection between head of Flag List and tail of Flag List.
 
-<br><br>
+<br>
 
-##### 3-2-4-6 . **Is Debug Obejct**
+### 3-2-4-6 . **Is Debug Obejct**
 
 ​		Determine to show Debug Objects (Flag,StarFlag,Angle).
 
-<br><br>
+<br>
 
-##### 3-2-4-7 . **Is Debug Line**
+### 3-2-4-7 . **Is Debug Line**
 
 ​		Determine to show Debug Lines (Guide).
 
-<br><br>
+<br>
 
-##### 3-2-4-8 . **Path Density**
+### 3-2-4-8 . **Path Density**
 
 ![figure11](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure11.gif?raw=true)
 
@@ -230,15 +230,15 @@ So let's get started.
 
 ​		The recommended value is 30.
 
-<br><br>
+<br>
 
-##### 3-2-4-9 . **FlagList**
+### 3-2-4-9 . **FlagList**
 
 ​		List of Flag. FlagList's Length should always be at least 2.
 
-<br><br>
+<br>
 
-##### 3-2-4-10 . **AngleList**
+### 3-2-4-10 . **AngleList**
 
 ​		List of Angle. AngleList's Length should always be equal FlagList's Length.
 
@@ -262,7 +262,7 @@ So let's get started.
 
 ---
 
-#### 3-3 . Move Object
+### 3-3 . Move Object
 
 3-3-1 . Create object to move.
 
@@ -276,35 +276,35 @@ So let's get started.
 
 ---
 
-##### 3-3-4-1 . **EndEvent()**
+### 3-3-4-1 . **EndEvent()**
 
 ​		Input the function to run when it arrived final destination.
 
 ​		**Remember!** If the path is closed loop, there is no final destination.
 
-<br><br>
+<br>
 
-##### 3-3-4-2 . **Path**
+### 3-3-4-2 . **Path**
 
 ​		Input the object with "Path Generator" component.
 
 ​		This object will move along this path.
 
-<br><br>
+<br>
 
-##### 3-3-4-3 . **Speed**
+### 3-3-4-3 . **Speed**
 
 ​		Speed of movement. **too high value can cause objects to behave erratically.**
 
-<br><br>
+<br>
 
-##### 3-3-4-4 . **Turning Speed**
+### 3-3-4-4 . **Turning Speed**
 
 ​		Speed of  rotation.  **too high value can cause objects to behave erratically.** 
 
-<br><br>
+<br>
 
-##### 3-3-4-5 . **Is Loop**
+### 3-3-4-5 . **Is Loop**
 
 ​		If the path is opened and this value is true,
 
@@ -312,9 +312,9 @@ So let's get started.
 
 ​		**Remember!** If the path is closed loop, there is no final destination.
 
-<br><br>
+<br>
 
-##### 3-3-4-6 . **IsMove**
+### 3-3-4-6 . **IsMove**
 
 ​		If this value is false, object doesn't move.
 
@@ -334,7 +334,7 @@ So let's get started.
 
 ## 4 . Examples
 
-#### 4-1 . Auto Driving
+### 4-1 . Auto Driving
 
 There may be many examples, but the best example is to create an object that runs along a given track.
 
@@ -352,7 +352,7 @@ With a little modification, you can implement a car that moves naturally even th
 
 <br>
 
-#### 4-2 . Planet Movement
+### 4-2 . Planet Movement
 
 ![figure17](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure17.gif?raw=true)
 
@@ -368,13 +368,11 @@ This script also allows you to create circular paths and elliptical orbits like 
 
 ## 5 . QnA
 
-#### 5-1 . My Git Blog
+### 5-1 . My Git Blog
 
 Thanks for read! check out [my blog](https://kimyc1223.github.io/) too !
 
-<br>
-
-#### 5-2 . Contact
+### 5-2 . Contact
 
 - Create issue in [this repo](https://github.com/KimYC1223/UnityPathGenerator/issues)
 - kau_esc@naver.com
