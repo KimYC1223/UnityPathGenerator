@@ -96,13 +96,13 @@ As the control point increases, you can create sophisticated or complex curves,
 
 For this project, I thought that the quadratic Bezier curve was sufficient.
 
-<br><br>
+<br>
 
 ## 2 . Environment
 
 Unity Version : 2019.4.1f 
 
-<br><br>
+<br>
 
 ## 3 . How to use
 
@@ -114,11 +114,7 @@ There are 3 scripts I will introduce.
 
 So let's get started.
 
-<br>
-
 ---
-
-<br>
 
 ## 3-1 . Import package
 
@@ -141,8 +137,6 @@ So let's get started.
 3-2-4 . Let's introduce parameters.
 
 ---
-
-<br>
 
 ### 3-2-4-1. **Flag**
 
@@ -242,8 +236,6 @@ So let's get started.
 
 ​		List of Angle. AngleList's Length should always be equal FlagList's Length.
 
-<br>
-
 ---
 
 3-2-5 . Fill in the blanks. In this tutorial, I'll use [Prefabs>Makers] elements.
@@ -318,8 +310,6 @@ So let's get started.
 
 ​		If this value is false, object doesn't move.
 
-<br>
-
 ---
 
 3-3-5 . Fill the blanks.
@@ -329,8 +319,6 @@ So let's get started.
 ![figure13](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure13.gif?raw=true)
 
 ---
-
-
 
 ## 4 . Examples
 
@@ -346,11 +334,7 @@ I once made a car that runs on a circular track I got from the Asset Store.
 
 With a little modification, you can implement a car that moves naturally even the wheels and steering wheel.
 
-<br>
-
 ---
-
-<br>
 
 ### 4-2 . Planet Movement
 
@@ -360,11 +344,7 @@ You can express movements between planets like the solar system.
 
 This script also allows you to create circular paths and elliptical orbits like Comet Halley.
 
-<br>
-
 ---
-
-<br>
 
 ## 5 . QnA
 
