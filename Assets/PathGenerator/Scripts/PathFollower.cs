@@ -24,6 +24,9 @@ public class PathFollower : MonoBehaviour
     [SerializeField]
     public EndEvent endEvent;                   // method to run when this is done moving
 
+    [SerializeField]
+    public EndEvent repeatEvent;                // method to run when this is done one loop
+
     public PathGenerator path;                  // choose the path to move     
     public float speed = 100f;                  // move speed
     public float turningSpeed = 10f;            // rotation speed 
@@ -32,7 +35,7 @@ public class PathFollower : MonoBehaviour
 
     private Rigidbody targetRigidbody;          // the rigidbody of the object to move
     private GameObject target;                  // object to move;
-    private GameObject nextPath;                // the direction the obejct will move
+    private Vector3 nextPath;                // the direction the obejct will move
     private int pathIndex = 1;                  // the path index the object will move
     private float distanceThreshold = 0.2f;     // distance threshold
 
@@ -49,7 +52,7 @@ public class PathFollower : MonoBehaviour
             Debug.LogError("no path\n경로가 없음");
         target = this.gameObject;
         nextPath = path.PathList[1];
-        this.transform.position = path.PathList[0].transform.position;
+        this.transform.position = path.PathList[0];
     }
 
     //===============================================================================================
@@ -73,7 +76,7 @@ public class PathFollower : MonoBehaviour
         // Function to make objects look at the next path
         // 물체가 다음 Path를 바라보게하는 기능
         //===========================================================================================
-        Vector3 offset = nextPath.transform.position - target.transform.position;
+        Vector3 offset = nextPath - target.transform.position;
         offset.Normalize();
         Quaternion q = Quaternion.LookRotation(offset);
         targetRigidbody.rotation =
@@ -89,8 +92,7 @@ public class PathFollower : MonoBehaviour
 
         // calculate distance between object and next path
         // 물체와 next path 경로 사이의 거리 계산
-        float Distance = Vector3.Distance(nextPath.transform.position,
-                                          target.transform.position);
+        float Distance = Vector3.Distance(nextPath, target.transform.position);
 
         //===========================================================================================
         // If it is close enough to the next path
@@ -114,6 +116,9 @@ public class PathFollower : MonoBehaviour
                     // If current path is closed path, back to zero of the path list
                     // 현재 path가 닫힌 경로이면, 다시 pathList[0]을 향해 전진
                     //===============================================================================
+                    if (endEvent != null) {
+                        endEvent.Invoke();
+                    }
                     nextPath = path.PathList[0];
                     pathIndex = 0;
                 } else {
@@ -128,8 +133,8 @@ public class PathFollower : MonoBehaviour
                         //===========================================================================
                         nextPath = path.PathList[1];
                         pathIndex = 1;
-                        this.transform.position = path.PathList[0].transform.position;
-                        target.transform.LookAt(path.PathList[1].transform);
+                        this.transform.position = path.PathList[0];
+                        target.transform.LookAt(path.PathList[1]);
                         // If endEvent isn't null, run method.
                         // endEvent가 null이 아니면, method를 실행
                         if (endEvent != null)
@@ -140,8 +145,10 @@ public class PathFollower : MonoBehaviour
                         // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
                         //==========================================================================
                         StopFollow();
-                        if (endEvent != null)
+                        if (endEvent != null) {
+                            Debug.Log("Stop");
                             endEvent.Invoke();
+                        }
                     }
                 }
             } 

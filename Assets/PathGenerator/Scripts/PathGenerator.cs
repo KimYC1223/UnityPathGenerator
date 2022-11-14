@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 //===================================================================================================
 //
@@ -15,19 +17,15 @@ using UnityEngine.UI;
 //===================================================================================================
 
 public class PathGenerator : MonoBehaviour {
-    public GameObject Flag;                 // Visual maker of stopover
-    public GameObject StartFlag;            // Visual maker of start point
-    public GameObject Angle;                // Visual maker of angle setter
-    public GameObject Guide;                // Visual maker of path guide
     public bool isClosed = true;            // is this path closed?
-    public bool isDebugObject = false;      // show Flag and Angle objects in play mode?
-    public bool isDebugLine = false;        // show guide objects in play mode?
+    public bool isLiveRender = true;        // is draw the path in runtime?
     public int PathDensity = 30;            // Density of guide objects between Flags
     
-    public List<GameObject> FlagList = new List<GameObject>();    // List of Flag objects
-    public List<GameObject> AngleList = new List<GameObject>();   // List of Angle objects
-    internal List<GameObject> PathList = new List<GameObject>();  // List of Path objects
-    private Transform Roads;                                      // Root object of guide objects
+    public List<Vector3> FlagList = new List<Vector3>();        // List of Flag pos
+    public List<Vector3> AngleList = new List<Vector3>();       // List of Angle pos
+    public List<Vector3> FlagList_Local = new List<Vector3>();  // List of Flag pos
+    public List<Vector3> AngleList_Local = new List<Vector3>(); // List of Angle pos
+    public List<Vector3> PathList = new List<Vector3>();        // List of Path pos
 
     //===============================================================================================
     // Awake method
@@ -36,6 +34,19 @@ public class PathGenerator : MonoBehaviour {
     // 각종 변수와 position 초기화
     //===============================================================================================
     public void Awake() {
+        UpdatePath();
+    }
+
+
+    //===============================================================================================
+    // UpdatePath method
+    //-----------------------------------------------------------------------------------------------
+    // Calculate & Generate Path
+    // 경로 계산 및 생성
+    //===============================================================================================
+    public void UpdatePath() {
+        PathList = new List<Vector3>();
+
         //===========================================================================================
         //  check path density is bigger than 1
         //  path density가 1보다 큰 지 확인
@@ -45,46 +56,35 @@ public class PathGenerator : MonoBehaviour {
             Debug.LogError("Path Density is too small. (must >= 2)");
             UnityEditor.EditorApplication.isPlaying = false;
 #elif UNITY_WEBPLAYER
-            Application.OpenURL("https://www.google.com");
+            Application.OpenURL("about:blank");
 #else
             Application.Quit();
 #endif
         }
 
         //===========================================================================================
-        //  Get root object of guides for Instantiate guide object
-        //  guide 오브젝트를 Instantiate 하기 위한 부모 객체 가져오기
-        //===========================================================================================
-        Transform[] childs = this.transform.GetComponentsInChildren<Transform>();
-        foreach(Transform t in childs) {
-            if (t.gameObject.name == "Roads")
-                Roads = t;
-        }
-
-        //===========================================================================================
         //  Generate path based on Bézier curve between Flags
         //  Flag들 사이에 베지어 곡선 기반의 path 생성
         //===========================================================================================
-        for (int i = 0; i < FlagList.Count; i++) {
+        for (int i = 0; i < FlagList_Local.Count; i++) {
             //=======================================================================================
             //  Select Flags
             //  Flag 선택
             //=======================================================================================
-            Vector3 startPoint = FlagList[i].transform.position;
+            Vector3 startPoint = FlagList_Local[i];
             Vector3 middlePoint = new Vector3();
             Vector3 endPoint = new Vector3();
-            if (i == FlagList.Count - 1) {
+            if (i == FlagList_Local.Count - 1) {
                 if (isClosed) {
-                    middlePoint = AngleList[i].transform.position;
-                    endPoint = FlagList[0].transform.position;
+                    middlePoint = AngleList_Local[i];
+                    endPoint = FlagList_Local[0];
                 } else {
                     break;
                 }
             } else {
-                middlePoint = AngleList[i].transform.position;
-                endPoint = FlagList[i + 1].transform.position;
+                middlePoint = AngleList_Local[i];
+                endPoint = FlagList_Local[i + 1];
             }
-            StartFlag.transform.position = startPoint;
 
             //=======================================================================================
             //  Calculate Bézier curve
@@ -93,41 +93,47 @@ public class PathGenerator : MonoBehaviour {
             for (int j = 0; j < PathDensity; j++) {
                 float t = (float)j / PathDensity;
 
-                Vector3 curve = (1f - t) * (1f - t) * startPoint +
-                               2 * (1f - t) * t * middlePoint +
+                Vector3 curve = ( 1f - t ) * ( 1f - t ) * startPoint +
+                               2 * ( 1f - t ) * t * middlePoint +
                                t * t * endPoint;
-
-                PathList.Add(Instantiate(Guide, curve, Quaternion.identity, Roads));
+                PathList.Add(curve);
             }
 
         }
 
         // 닫힌 경로인 경우 마지막 Flag를 Path리스트에 넣어줌
-        if(!isClosed)
-            PathList.Add(
-                Instantiate(Guide, FlagList[FlagList.Count-1].transform.position,
-                Quaternion.identity, Roads));
+        if (isClosed)
+            PathList.Add(FlagList_Local[0]);
+        Debug.Log(PathList.Count);
 
-        //===========================================================================================
-        //  Debug Obejct ( Flag, StartFlag, Angle ) visual control
-        //  디버그 오브젝트 (Flag, StartFlag, Angle) 비주얼 컨트롤
-        //===========================================================================================
-        if (!isDebugObject) {
-            foreach (GameObject element in FlagList)
-                element.GetComponent<Renderer>().enabled = false;
-            foreach (GameObject element in AngleList)
-                if(element != null)
-                    element.GetComponent<Renderer>().enabled = false;
-        }
+        ////===========================================================================================
+        ////  Debug Obejct ( Flag, StartFlag, Angle ) visual control
+        ////  디버그 오브젝트 (Flag, StartFlag, Angle) 비주얼 컨트롤
+        ////===========================================================================================
+        //if (!isDebugObject) {
 
-        //===========================================================================================
-        //  Debug Line visual control
-        //  디버그 라인 비주얼 컨트롤
-        //===========================================================================================
-        if (!isDebugLine) {
-            foreach (GameObject element in PathList)
-                element.GetComponent<Renderer>().enabled = false;
-        }
+        //}
+    }
+
+    public void Update() {
+        if (isLiveRender)
+            UpdatePath();
     }
     
+    public void OnDrawGizmosSelected() {
+        if(FlagList_Local != null && FlagList_Local.Count > 0) {
+            for (int i = 0; i < FlagList_Local.Count; i++) {
+                if (i == 0)
+                    Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Start.png", true);
+                else if (!isClosed && i == FlagList_Local.Count - 1)
+                    Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_End.png", true);
+                else
+                    Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Node.png", true);
+            }
+        }
+
+        if (AngleList_Local != null && AngleList_Local.Count > 0)
+            for (int i = 0; i < AngleList_Local.Count; i++)
+                Gizmos.DrawIcon(AngleList_Local[i], "PathGenerator/PG_Handler.png", true);
+    }
 }
