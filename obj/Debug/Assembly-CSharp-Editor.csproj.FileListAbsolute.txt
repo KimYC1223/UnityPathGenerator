@@ -1,0 +1,2 @@
+C:\src\UnityPathGenerator\obj\Debug\Assembly-CSharp-Editor.csproj.AssemblyReference.cache
+C:\src\UnityPathGenerator\obj\Debug\Assembly-CSharp-Editor.csproj.CoreCompileInputs.cache
