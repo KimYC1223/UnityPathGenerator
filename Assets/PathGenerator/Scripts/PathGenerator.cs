@@ -175,17 +175,17 @@ namespace CurvedPathGenertator {
             if (FlagList_Local != null && FlagList_Local.Count > 0) {
                 for (int i = 0; i < FlagList_Local.Count; i++) {
                     if (i == 0)
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Start.png", ( EditMode == 1 ));
+                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Start.png", ( EditMode != 0 ));
                     else if (!isClosed && i == FlagList_Local.Count - 1)
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_End.png", ( EditMode == 1 ));
+                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_End.png", ( EditMode != 0 ));
                     else 
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Node.png", ( EditMode == 1 ));
+                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Node.png", ( EditMode != 0 ));
                 }
             }
 
             if (AngleList_Local != null && AngleList_Local.Count > 0)
                 for (int i = 0; i < AngleList_Local.Count; i++)
-                    Gizmos.DrawIcon(AngleList_Local[i], "PathGenerator/PG_Handler.png", ( EditMode == 1 ));
+                    Gizmos.DrawIcon(AngleList_Local[i], "PathGenerator/PG_Handler.png", ( EditMode != 0 ));
         }
         
     }

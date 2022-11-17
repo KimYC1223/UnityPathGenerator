@@ -1,34 +1,44 @@
+using NUnit;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
-//=======================================================================================================================================
+//===============================================================================================================================================================
 //
 //  PATH GENERATOR GUI CLASS
 //
 //  GUI Script to help generate path based on Bézier curve 
 //  베지어 곡선 기반의 path를 만드는데 도움을 주는 GUI
 //
-//---------------------------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //  2020.09.01 _ KimYC1223
-//=======================================================================================================================================
+//===============================================================================================================================================================
 
 namespace CurvedPathGenertator {
+
     [CustomEditor(typeof(PathGenerator))]
     class PathGeneratorGUI : Editor {
-        private Vector3 Old_Position = new Vector3(0,0,0);
-        private Vector3 Old_Scale = new Vector3(1f,1f,1f);
-        private Quaternion Old_Rotation = Quaternion.identity;
-        private GUIStyle centerStyle;
+        static public LANGUAGE CurrentLanguage = LANGUAGE.ENG;
 
-        //===============================================================================================================================
+        private Vector3 old_Position = new Vector3(0,0,0);
+        private Vector3 old_Scale = new Vector3(1f,1f,1f);
+        private Quaternion old_Rotation = Quaternion.identity;
+        private GUIStyle centerStyle;
+        private Vector2 scrollPosition;
+        private Vector2 scrollPosition2;
+        private int flagListEditIndex = -1;
+        private int angleListEditIndex = -1;
+        private bool isShowIndex = true;
+
+        //=======================================================================================================================================================
         // OnSceneGUI method
-        //-------------------------------------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
         // A function called whenever the inspector is drawn.
         // 인스펙터가 그려질 때 마다 호출되는 함수
-        //===============================================================================================================================
+        //=======================================================================================================================================================
         public override void OnInspectorGUI() {
             PathGenerator pathGenerator = target as PathGenerator;
 
@@ -36,57 +46,163 @@ namespace CurvedPathGenertator {
             centerStyle.alignment = TextAnchor.MiddleCenter;
             Texture LogoTex = (Texture2D)Resources.Load("PathGenerator/Logo/PathGeneratorScriptImg", typeof(Texture2D));
             GUILayout.Label(LogoTex, GUILayout.Width(400), GUILayout.Height(90));
-            GUI.enabled = false;
-            GUILayout.Label("  Curved Path Genertator   |   곡선 경로 생성기", EditorStyles.boldLabel);
-            GUILayout.Label("  Developed by KimYC1223");
-            GUI.enabled = true;
-            GUILayout.Space(10);
-            GuiLine();
-            GUILayout.Space(10);
 
-            //===========================================================================================================================
+            GUILayout.BeginHorizontal();
+            GUI.enabled = CurrentLanguage != LANGUAGE.ENG;
+            if (GUILayout.Button("English", GUILayout.Height(22))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                CurrentLanguage = LANGUAGE.ENG;
+            }
+            GUI.enabled = CurrentLanguage != LANGUAGE.KOR;
+            if (GUILayout.Button("한국어", GUILayout.Height(22))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                CurrentLanguage = LANGUAGE.KOR;
+            }
+            GUI.enabled = CurrentLanguage != LANGUAGE.JAP;
+            if (GUILayout.Button("日本語", GUILayout.Height(22))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                CurrentLanguage = LANGUAGE.JAP;
+            }
+            GUI.enabled = true;
+            GUILayout.EndHorizontal();
+            GUILayout.Space(8);
+            GUI.enabled = false;
+            GUILayout.Label("  " + PathGeneratorGUILanguage.GetLocalText("PG_Title"), EditorStyles.boldLabel);
+            GUILayout.Label("  " + PathGeneratorGUILanguage.GetLocalText("PG_SubTitle"));
+            GUI.enabled = true;
+            GUILayout.Space(8);
+            GuiLine();
+            GUILayout.Space(15);
+
+            //===================================================================================================================================================
             // Open / Close path selection button
-            //---------------------------------------------------------------------------------------------------------------------------
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
             // Choose open / close path type
             // 열린 패스 / 닫힌 패스를 정하는 버튼
-            //===========================================================================================================================
+            //===================================================================================================================================================
             if (pathGenerator.isClosed) {
-                if (GUILayout.Button("Change to open path", GUILayout.Height(25))) {
+                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToOpen"), GUILayout.Height(25))) {
                     Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
                     pathGenerator.isClosed = false;
                 }
             }
             else {
-                if (GUILayout.Button("Change to closed path", GUILayout.Height(25))) {
+                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToClose"), GUILayout.Height(25))) {
                     Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                    if(pathGenerator.FlagList != null && pathGenerator.FlagList.Count >= 2) {
+                        Vector3 centerPos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] + pathGenerator.FlagList[0];
+                        centerPos /= 2;
+                        pathGenerator.AngleList.Add(centerPos);
+                    }
                     pathGenerator.isClosed = true;
                 }
             }
             GUILayout.Space(5);
 
-            //===========================================================================================================================
-            // Open / Close path selection button
-            //---------------------------------------------------------------------------------------------------------------------------
-            // Choose open / close path type
-            // 열린 패스 / 닫힌 패스를 정하는 버튼
-            //===========================================================================================================================
-            if (pathGenerator.EditMode == 0) {
-                if (GUILayout.Button("Change to individual edit mode", GUILayout.Height(25))) {
-                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                    pathGenerator.EditMode = 1;
-                }
-            } else if (pathGenerator.EditMode == 1) {
-                if (GUILayout.Button("Change to total edit mode", GUILayout.Height(25))) {
-                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                    pathGenerator.EditMode = 2;
-                }
-            } else {
-                if (GUILayout.Button("Change to normal mode", GUILayout.Height(25))) {
-                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                    pathGenerator.EditMode = 0;
-                }
+            //===================================================================================================================================================
+            // Edit mode selection button
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Choose edit mode type
+            // 에디터 모드를 결정하는 버튼
+            //===================================================================================================================================================
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Label"));
+            GUILayout.BeginHorizontal();
+            GUI.enabled = pathGenerator.EditMode != 0;
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Disable"), GUILayout.Height(25))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                pathGenerator.EditMode = 0;
             }
+            GUI.enabled = pathGenerator.EditMode != 1;
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Individual"), GUILayout.Height(25))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                pathGenerator.EditMode = 1;
+            }
+            GUI.enabled = pathGenerator.EditMode != 2;
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Total"), GUILayout.Height(25))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                pathGenerator.EditMode = 2;
+            }
+            GUI.enabled = true;
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(10);
+            isShowIndex = GUILayout.Toggle(isShowIndex, PathGeneratorGUILanguage.GetLocalText("PG_ShowLableToggle"));
+            GUILayout.Space(10);
+            GuiLine();
+            GUILayout.Space(10);
+
+
+            //===================================================================================================================================================
+            // Node List
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Panel to manage nodes
+            // 노드를 관리 할 수 있는 패널
+            //===================================================================================================================================================
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeList_Label"));
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_No"), EditorStyles.toolbarButton, GUILayout.Width(30f));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_LocalPosition"), 
+                                                    EditorStyles.toolbarButton, GUILayout.Width(EditorGUIUtility.currentViewWidth - 175f));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), EditorStyles.toolbarButton, GUILayout.Width(50f));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Delete"), EditorStyles.toolbarButton, GUILayout.Width(60f));
+            GUILayout.EndHorizontal();
+
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true,GUILayout.Height(150));
+            try {
+                // Scroll View Area
+                if (pathGenerator.FlagList == null || pathGenerator.FlagList.Count == 0) {
+                    Rect rect0 = EditorGUILayout.GetControlRect(false, 300);
+                    GUIStyle centerStyle = new GUIStyle("Label");
+                    centerStyle.alignment = TextAnchor.MiddleCenter;
+                    centerStyle.fixedHeight = 140;
+                    GUILayout.BeginArea(rect0);
+                    GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Empty"), centerStyle);
+                    GUILayout.EndArea();
+                } else {
+                    Rect rect0 = EditorGUILayout.GetControlRect(false, 21 * pathGenerator.FlagList.Count);
+                    Rect rect1 = new Rect(rect0.x, rect0.y, EditorGUIUtility.currentViewWidth - 36f, 21 * pathGenerator.FlagList.Count);
+                    GUILayout.BeginArea(rect1);
+
+                    for (int i = 0; i < pathGenerator.FlagList.Count; i++) {
+
+                        Vector3 targetPos = pathGenerator.FlagList[i];
+                        GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                        GUILayout.Label((i+1).ToString(), GUILayout.Width(30f));
+                        GUI.enabled = false;
+                        EditorGUILayout.Vector3Field("", pathGenerator.FlagList[i], GUILayout.Width(EditorGUIUtility.currentViewWidth - 185f));
+                        GUI.enabled = true;
+                        if (GUILayout.Button(
+                            PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), 
+                            EditorStyles.toolbarButton, GUILayout.Width(50f)))
+                            DeleteFlagButtonClick(i);
+                        if (GUILayout.Button(
+                            PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_DeleteButton"), 
+                            EditorStyles.toolbarButton, 
+                            GUILayout.Width(59f))) 
+                            DeleteFlagButtonClick(i);
+                        GUILayout.EndHorizontal();
+                    }
+
+                }
+            } catch (System.Exception e) {
+                Rect rect0 = EditorGUILayout.GetControlRect(false, 300);
+                GUIStyle centerStyle = new GUIStyle("Label");
+                centerStyle.alignment = TextAnchor.MiddleCenter;
+                centerStyle.fixedHeight = 140;
+                GUILayout.BeginArea(rect0);
+                GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Empty"), centerStyle);
+                GUILayout.EndArea();
+                e.ToString();
+            }
+
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+
+
+            if (GUILayout.Button("Create node", GUILayout.Height(25f)))
+                CreateFlagButtonClick();
         }
+
 
         void GuiLine(int i_height = 1) {
             Rect rect = EditorGUILayout.GetControlRect(false, i_height);
@@ -94,12 +210,72 @@ namespace CurvedPathGenertator {
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1));
         }
 
-        //===============================================================================================================================
+        void CreateFlagButtonClick() {
+            PathGenerator pathGenerator = target as PathGenerator;
+            Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            if (pathGenerator.FlagList == null || pathGenerator.FlagList.Count < 2 ||
+               pathGenerator.AngleList == null || pathGenerator.AngleList.Count < 1)
+                return;
+
+            if(pathGenerator.isClosed) {
+                Vector3 new_pos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] + pathGenerator.FlagList[0];
+                new_pos /= 2;
+                pathGenerator.FlagList.Add(new_pos);
+                new_pos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 2] + 
+                                                                pathGenerator.FlagList[pathGenerator.FlagList.Count - 1];
+                new_pos /= 2;
+                pathGenerator.AngleList[pathGenerator.AngleList.Count - 1] = new_pos;
+                new_pos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] + pathGenerator.FlagList[0];
+                new_pos /= 2;
+                pathGenerator.AngleList.Add(new_pos);
+            } else {
+                Vector3 new_pos = 2 * pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] -
+                                     pathGenerator.AngleList[pathGenerator.AngleList.Count - 1];
+                pathGenerator.FlagList.Add(new_pos);
+                new_pos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 2] +
+                                                                pathGenerator.FlagList[pathGenerator.FlagList.Count - 1];
+                new_pos /= 2;
+                pathGenerator.AngleList.Add(new_pos);
+            }
+        }
+
+        void DeleteFlagButtonClick(int i) {
+            PathGenerator pathGenerator = target as PathGenerator;
+            Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            if (pathGenerator.FlagList == null || pathGenerator.FlagList.Count <= 2 ||
+               pathGenerator.AngleList == null || pathGenerator.AngleList.Count <= 1)
+                return;
+
+            pathGenerator.FlagList.RemoveAt(i);
+            pathGenerator.FlagList_Local.RemoveAt(i);
+            if(pathGenerator.isClosed || i < pathGenerator.FlagList.Count) {
+                pathGenerator.AngleList.RemoveAt(i);
+                pathGenerator.AngleList_Local.RemoveAt(i);
+            }
+        }
+
+        void EditFlagButtonClick(int i) {
+            PathGenerator pathGenerator = target as PathGenerator;
+
+        }
+
+        void DeleteAngleButtonClick(int i) {
+            PathGenerator pathGenerator = target as PathGenerator;
+
+        }
+
+        void EditAngleButtonClick(int i) {
+            PathGenerator pathGenerator = target as PathGenerator;
+
+        }
+
+
+        //=======================================================================================================================================================
         // OnSceneGUI method
-        //-------------------------------------------------------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
         // A function called whenever the GUI is drawn on the screen.
         // 스크린에 GUI가 그려질 때 마다 호출되는 함수
-        //===============================================================================================================================
+        //=======================================================================================================================================================
         public void OnSceneGUI() {
             PathGenerator pathGenerator = target as PathGenerator;      // 조절할 PathGenerator
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
@@ -113,15 +289,15 @@ namespace CurvedPathGenertator {
 
             int Count = FlagList.Count;
 
-            if (Old_Position != pathGenerator.transform.localPosition ||
-                Old_Rotation != pathGenerator.transform.localRotation ||
-                Old_Scale    != pathGenerator.transform.localScale ||
+            if (old_Position != pathGenerator.transform.localPosition ||
+                old_Rotation != pathGenerator.transform.localRotation ||
+                old_Scale    != pathGenerator.transform.localScale ||
                 pathGenerator.FlagList_Local.Count != FlagList.Count ||
                 pathGenerator.AngleList_Local.Count != AngleList.Count) {
 
-                Old_Position = pathGenerator.transform.localPosition;
-                Old_Rotation = pathGenerator.transform.localRotation;
-                Old_Scale = pathGenerator.transform.localScale;
+                old_Position = pathGenerator.transform.localPosition;
+                old_Rotation = pathGenerator.transform.localRotation;
+                old_Scale = pathGenerator.transform.localScale;
 
                 pathGenerator.FlagList_Local = new List<Vector3>();
                 for (int i = 0; i < FlagList.Count; i++) {
@@ -148,10 +324,10 @@ namespace CurvedPathGenertator {
                 }
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // Exception handling when FlagList is less than AngleList
             // FlagList가 AngleList보다 작을때의 예외 처리
-            //===========================================================================================================================
+            //===================================================================================================================================================
             if (FlagList.Count < AngleList.Count) {
                 int offset = AngleList.Count - FlagList.Count;
                 for (int i = 0; i < offset; i++) {
@@ -159,10 +335,10 @@ namespace CurvedPathGenertator {
                 }
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // Exception handling when there is only one flag
             // Flag가 하나 밖에 없거나 Anglelist가 비어있을때의 예외 처리
-            //===========================================================================================================================
+            //===================================================================================================================================================
             if (FlagList.Count < 2) {
                 FlagList.Clear();
                 FlagList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
@@ -170,10 +346,10 @@ namespace CurvedPathGenertator {
                 Count = 2;
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // Exception handling when AngleList size is less than FlagList size
             // AngleList 크기가 FlagList보다 작은 경우 예외 처리
-            //===========================================================================================================================
+            //===================================================================================================================================================
             if (pathGenerator.isClosed && AngleList.Count < FlagList.Count) {
                 AngleList.Clear();
                 for(int i = 0; i < Count; i++)
@@ -184,10 +360,10 @@ namespace CurvedPathGenertator {
                     AngleList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // Check objects of List. If it's not in the scene, create at the midpoint between the flags.
             // List 기반으로 오브젝트를 검사. 만약, Scene에 없으면 두 Flag 사이의 중점에 생성
-            //===========================================================================================================================
+            //===================================================================================================================================================
             for (int i = 0; i < Count; i++) {
                 if ((i == Count - 1) && (!pathGenerator.isClosed))
                     continue;
@@ -198,10 +374,10 @@ namespace CurvedPathGenertator {
                 }
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // If it is a closed loop, connect the last and first points
             // 닫힌 루프라면, 마지막과 첫 점을 이어줌
-            //===========================================================================================================================
+            //===================================================================================================================================================
             try {
                 if (!pathGenerator.isClosed && AngleList[Count - 1] != null) {
                     AngleList.RemoveAt(AngleList.Count - 1);
@@ -234,10 +410,10 @@ namespace CurvedPathGenertator {
                 }
             }
 
-            //===========================================================================================================================
+            //===================================================================================================================================================
             // Calculate Bézier curve
             // 베지어 커브 계산
-            //===========================================================================================================================
+            //===================================================================================================================================================
             try {
                 for (int i = 0; i < Count; i++) {
                     if (pathGenerator.EditMode == 1) {
@@ -297,8 +473,41 @@ namespace CurvedPathGenertator {
             } catch (System.Exception e) {
                 e.ToString();
             }
+
+
+            if(isShowIndex) {
+                if (pathGenerator.FlagList_Local != null && pathGenerator.FlagList_Local.Count > 0) {
+                    for (int i = 0; i < pathGenerator.FlagList_Local.Count; i++)
+                        DrawTextLabelOnScene(pathGenerator.FlagList_Local[i], Color.green, "[ " + (i+1) + " ]");
+                }
+
+                if (pathGenerator.AngleList_Local != null && pathGenerator.AngleList_Local.Count > 0) {
+                    for (int i = 0; i < pathGenerator.AngleList_Local.Count; i++)
+                        DrawTextLabelOnScene(pathGenerator.AngleList_Local[i], Color.yellow,
+                            ( pathGenerator.isClosed && i == pathGenerator.AngleList_Local.Count - 1 ) ? 
+                                                            ( (i + 1) + " → 1") : (( i + 1 ) + " → " + ( i + 2 ) ));
+                }
+            }
         }
 
+        private void DrawTextLabelOnScene(Vector3 worldPos, Color TextColor, string Text) {
+            Vector2 guiLoc = HandleUtility.WorldToGUIPoint(worldPos);  // 오브젝트의 월드좌표를 2D 좌표로 변환
+            var rect = new Rect(guiLoc.x - 20f, guiLoc.y + 10, 40, 20);    // 라벨 위치 지정
+            Handles.BeginGUI();
+            Color oldBgColor = GUI.backgroundColor;
+            Color oldTextColor = GUI.skin.box.normal.textColor;
+            GUI.skin.box.normal.textColor = TextColor;
+            GUI.backgroundColor = new Color(0, 0, 0, 0.7f);     // 배경 색 지정
+            GUI.Box(rect, Text);      // Box UI 표시
+            GUI.backgroundColor = oldBgColor;
+            GUI.skin.box.normal.textColor = oldTextColor;
+            Handles.EndGUI();
+        }
+
+
+        public void OnEnable() {
+            PathGeneratorGUILanguage.InitLocalization();
+        }
     }
 
 }
