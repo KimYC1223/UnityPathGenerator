@@ -1,10 +1,13 @@
 using NUnit;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using static UnityEditor.PlayerSettings;
 
 //===============================================================================================================================================================
 //
@@ -26,12 +29,25 @@ namespace CurvedPathGenertator {
         private Vector3 old_Position = new Vector3(0,0,0);
         private Vector3 old_Scale = new Vector3(1f,1f,1f);
         private Quaternion old_Rotation = Quaternion.identity;
-        private GUIStyle centerStyle;
         private Vector2 scrollPosition;
         private Vector2 scrollPosition2;
         private int flagListEditIndex = -1;
         private int angleListEditIndex = -1;
         private bool isShowIndex = true;
+
+        private bool isTopViewMode = false;
+        private Quaternion OldSceneViewRotation = Quaternion.identity;
+        private float OldSceneViewSize = 0;
+        private Vector3 OldSceneViewPiviot = Vector3.zero;
+
+        private GUIStyle centerStyle;
+        private GUIStyle ComponentTitle;
+        private GUIStyle H1Text;
+        private Texture2D scrollViewBG;
+
+        private Color GuidLineColor_1 = Color.green;
+        private Color GuidLineColor_2 = Color.yellow;
+        private Color GuidLineColor_3 = Color.cyan;
 
         //=======================================================================================================================================================
         // OnSceneGUI method
@@ -41,11 +57,24 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         public override void OnInspectorGUI() {
             PathGenerator pathGenerator = target as PathGenerator;
+            if(ComponentTitle == null) {
+                ComponentTitle = new GUIStyle(EditorStyles.label);
+                ComponentTitle.normal.textColor = new Color(0f, 0.3882f, 0.9725f, 1f);
+                ComponentTitle.fontSize = 17;
+                ComponentTitle.fontStyle = FontStyle.Bold;
+            }
+
+            //if(H1Text == null) {
+                H1Text = new GUIStyle(EditorStyles.label);
+                H1Text.normal.textColor = new Color(0.4784f, 0.8823f, 0.4980f, 1f);
+                H1Text.fontStyle = FontStyle.Bold;
+                H1Text.fontSize = 15;
+            //}
 
             centerStyle = new GUIStyle("Label");
             centerStyle.alignment = TextAnchor.MiddleCenter;
             Texture LogoTex = (Texture2D)Resources.Load("PathGenerator/Logo/PathGeneratorScriptImg", typeof(Texture2D));
-            GUILayout.Label(LogoTex, GUILayout.Width(400), GUILayout.Height(90));
+            GUILayout.Label(LogoTex, GUILayout.Width(300), GUILayout.Height(67.5f));
 
             GUILayout.BeginHorizontal();
             GUI.enabled = CurrentLanguage != LANGUAGE.ENG;
@@ -66,38 +95,14 @@ namespace CurvedPathGenertator {
             GUI.enabled = true;
             GUILayout.EndHorizontal();
             GUILayout.Space(8);
+            GUILayout.Label( PathGeneratorGUILanguage.GetLocalText("PG_Title"), ComponentTitle);
             GUI.enabled = false;
-            GUILayout.Label("  " + PathGeneratorGUILanguage.GetLocalText("PG_Title"), EditorStyles.boldLabel);
-            GUILayout.Label("  " + PathGeneratorGUILanguage.GetLocalText("PG_SubTitle"));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_SubTitle"));
             GUI.enabled = true;
             GUILayout.Space(8);
+
             GuiLine();
             GUILayout.Space(15);
-
-            //===================================================================================================================================================
-            // Open / Close path selection button
-            //---------------------------------------------------------------------------------------------------------------------------------------------------
-            // Choose open / close path type
-            // 열린 패스 / 닫힌 패스를 정하는 버튼
-            //===================================================================================================================================================
-            if (pathGenerator.isClosed) {
-                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToOpen"), GUILayout.Height(25))) {
-                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                    pathGenerator.isClosed = false;
-                }
-            }
-            else {
-                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToClose"), GUILayout.Height(25))) {
-                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                    if(pathGenerator.FlagList != null && pathGenerator.FlagList.Count >= 2) {
-                        Vector3 centerPos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] + pathGenerator.FlagList[0];
-                        centerPos /= 2;
-                        pathGenerator.AngleList.Add(centerPos);
-                    }
-                    pathGenerator.isClosed = true;
-                }
-            }
-            GUILayout.Space(5);
 
             //===================================================================================================================================================
             // Edit mode selection button
@@ -105,12 +110,16 @@ namespace CurvedPathGenertator {
             // Choose edit mode type
             // 에디터 모드를 결정하는 버튼
             //===================================================================================================================================================
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_H1_EditorSetting"), H1Text);
+            GUILayout.Space(8);
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Label"));
             GUILayout.BeginHorizontal();
             GUI.enabled = pathGenerator.EditMode != 0;
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Disable"), GUILayout.Height(25))) {
                 Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
                 pathGenerator.EditMode = 0;
+                flagListEditIndex = -1;
+                angleListEditIndex = -1;
             }
             GUI.enabled = pathGenerator.EditMode != 1;
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Individual"), GUILayout.Height(25))) {
@@ -121,15 +130,47 @@ namespace CurvedPathGenertator {
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Total"), GUILayout.Height(25))) {
                 Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
                 pathGenerator.EditMode = 2;
+                flagListEditIndex = -1;
+                angleListEditIndex = -1;
             }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
 
+            GUILayout.Space(12);
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_ShowLabel_Label"));
+            GUILayout.Space(5);
+            GUILayout.BeginHorizontal();
+            isShowIndex = GUILayout.Toggle(isShowIndex, PathGeneratorGUILanguage.GetLocalText("PG_ShowLabelToggle"));
+            pathGenerator.isShowingIcons = GUILayout.Toggle(pathGenerator.isShowingIcons,
+                                                               PathGeneratorGUILanguage.GetLocalText("PG_ShowIconsToggle"));
+            GUILayout.EndHorizontal();
             GUILayout.Space(10);
-            isShowIndex = GUILayout.Toggle(isShowIndex, PathGeneratorGUILanguage.GetLocalText("PG_ShowLableToggle"));
-            GUILayout.Space(10);
+
+            //===================================================================================================================================================
+            // Open / Close path selection button
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Choose open / close path type
+            // 열린 패스 / 닫힌 패스를 정하는 버튼
+            //===================================================================================================================================================
+            if (GUILayout.Button(
+                    ( isTopViewMode ) ? PathGeneratorGUILanguage.GetLocalText("PG_TopViewModeButton_Reset") :
+                                      PathGeneratorGUILanguage.GetLocalText("PG_TopViewModeButton_toTop"),
+                    GUILayout.Height(25))) {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                TopViewButtonClick(!isTopViewMode);
+            }
+            GUILayout.Space(7);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Colors_Label"));
+            GuidLineColor_1 = EditorGUILayout.ColorField(GuidLineColor_1);
+            GuidLineColor_2 = EditorGUILayout.ColorField(GuidLineColor_2);
+            GuidLineColor_3 = EditorGUILayout.ColorField(GuidLineColor_3);
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(15);
             GuiLine();
-            GUILayout.Space(10);
+            GUILayout.Space(15);
 
 
             //===================================================================================================================================================
@@ -138,15 +179,23 @@ namespace CurvedPathGenertator {
             // Panel to manage nodes
             // 노드를 관리 할 수 있는 패널
             //===================================================================================================================================================
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_H1_Node"),H1Text);
+            GUILayout.Space(8);
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeList_Label"));
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_No"), EditorStyles.toolbarButton, GUILayout.Width(30f));
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_LocalPosition"), 
                                                     EditorStyles.toolbarButton, GUILayout.Width(EditorGUIUtility.currentViewWidth - 175f));
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), EditorStyles.toolbarButton, GUILayout.Width(50f));
-            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Delete"), EditorStyles.toolbarButton, GUILayout.Width(60f));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Delete"), EditorStyles.toolbarButton, GUILayout.Width(72f));
             GUILayout.EndHorizontal();
 
+            if (scrollViewBG == null) {
+                scrollViewBG = new Texture2D(1, 1);
+                scrollViewBG.SetPixel(0, 0, new Color(0, 0, 0, 0.1f));
+            }
+            GUI.skin.scrollView.normal.background = scrollViewBG;
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true,GUILayout.Height(150));
             try {
                 // Scroll View Area
@@ -174,15 +223,15 @@ namespace CurvedPathGenertator {
                         if (GUILayout.Button(
                             PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), 
                             EditorStyles.toolbarButton, GUILayout.Width(50f)))
-                            DeleteFlagButtonClick(i);
+                                EditFlagButtonClick(i);
                         if (GUILayout.Button(
                             PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_DeleteButton"), 
                             EditorStyles.toolbarButton, 
                             GUILayout.Width(59f))) 
-                            DeleteFlagButtonClick(i);
+                                DeleteFlagButtonClick(i);
                         GUILayout.EndHorizontal();
                     }
-
+                    GUILayout.EndArea();
                 }
             } catch (System.Exception e) {
                 Rect rect0 = EditorGUILayout.GetControlRect(false, 300);
@@ -194,13 +243,37 @@ namespace CurvedPathGenertator {
                 GUILayout.EndArea();
                 e.ToString();
             }
-
             GUILayout.EndScrollView();
-            GUILayout.EndArea();
 
 
-            if (GUILayout.Button("Create node", GUILayout.Height(25f)))
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_NodeList_CreateNodeButton"), GUILayout.Height(25f)))
                 CreateFlagButtonClick();
+            GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // Open / Close path selection button
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Choose open / close path type
+            // 열린 패스 / 닫힌 패스를 정하는 버튼
+            //===================================================================================================================================================
+
+            if (pathGenerator.isClosed) {
+                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToOpen"), GUILayout.Height(25))) {
+                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                    pathGenerator.isClosed = false;
+                }
+            } else {
+                if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_PathTypeChangeButton_ToClose"), GUILayout.Height(25))) {
+                    Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+                    if (pathGenerator.FlagList != null && pathGenerator.FlagList.Count >= 2) {
+                        Vector3 centerPos = pathGenerator.FlagList[pathGenerator.FlagList.Count - 1] + pathGenerator.FlagList[0];
+                        centerPos /= 2;
+                        pathGenerator.AngleList.Add(centerPos);
+                    }
+                    pathGenerator.isClosed = true;
+                }
+            }
+            GUILayout.Space(5);
         }
 
 
@@ -213,8 +286,7 @@ namespace CurvedPathGenertator {
         void CreateFlagButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-            if (pathGenerator.FlagList == null || pathGenerator.FlagList.Count < 2 ||
-               pathGenerator.AngleList == null || pathGenerator.AngleList.Count < 1)
+            if (pathGenerator.FlagList == null || pathGenerator.AngleList == null)
                 return;
 
             if(pathGenerator.isClosed) {
@@ -237,6 +309,30 @@ namespace CurvedPathGenertator {
                 new_pos /= 2;
                 pathGenerator.AngleList.Add(new_pos);
             }
+
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
+            int i = pathGenerator.FlagList.Count - 1;
+            pathGenerator.FlagList_Local.Add(pathGenerator.FlagList[i]);
+            pathGenerator.FlagList_Local[i] = m_rotate.MultiplyPoint3x4(pathGenerator.FlagList_Local[i]);
+            pathGenerator.FlagList_Local[i] = new Vector3(
+                pathGenerator.FlagList_Local[i].x * pathGenerator.transform.lossyScale.x,
+                pathGenerator.FlagList_Local[i].y * pathGenerator.transform.lossyScale.y,
+                pathGenerator.FlagList_Local[i].z * pathGenerator.transform.lossyScale.z
+            );
+            pathGenerator.FlagList_Local[i] += pathGenerator.transform.position;
+            if(pathGenerator.isClosed) {
+                pathGenerator.AngleList_Local.Add(pathGenerator.AngleList[i]);
+                pathGenerator.AngleList_Local[i] = m_rotate.MultiplyPoint3x4(pathGenerator.AngleList_Local[i]);
+                pathGenerator.AngleList_Local[i] = new Vector3(
+                    pathGenerator.AngleList_Local[i].x * pathGenerator.transform.lossyScale.x,
+                    pathGenerator.AngleList_Local[i].y * pathGenerator.transform.lossyScale.y,
+                    pathGenerator.AngleList_Local[i].z * pathGenerator.transform.lossyScale.z
+                );
+                pathGenerator.AngleList_Local[i] += pathGenerator.transform.position;
+            }
+
+            EditFlagButtonClick(pathGenerator.FlagList.Count - 1);
         }
 
         void DeleteFlagButtonClick(int i) {
@@ -252,11 +348,65 @@ namespace CurvedPathGenertator {
                 pathGenerator.AngleList.RemoveAt(i);
                 pathGenerator.AngleList_Local.RemoveAt(i);
             }
+            flagListEditIndex = -1;
+            angleListEditIndex = -1;
         }
 
         void EditFlagButtonClick(int i) {
             PathGenerator pathGenerator = target as PathGenerator;
+            Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            if (pathGenerator.FlagList == null || pathGenerator.AngleList == null)
+                return;
 
+            if(flagListEditIndex == i) {
+                flagListEditIndex = -1;
+                angleListEditIndex = -1;
+                return;
+            }
+
+            pathGenerator.EditMode = 1;
+            var sceneView = SceneView.lastActiveSceneView;
+            sceneView.pivot = pathGenerator.FlagList_Local[i];
+            sceneView.size = 2;
+            OldSceneViewPiviot = sceneView.pivot;
+            OldSceneViewSize = sceneView.size;
+
+            flagListEditIndex = i;
+            angleListEditIndex = -1;
+        }
+
+        void TopViewButtonClick(bool value) {
+            PathGenerator pathGenerator = target as PathGenerator;
+            Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            var sceneView = SceneView.lastActiveSceneView;
+            isTopViewMode = value;
+
+            if(isTopViewMode) {
+                OldSceneViewRotation = sceneView.rotation;
+                OldSceneViewSize = sceneView.size;
+                OldSceneViewPiviot = sceneView.pivot;
+                sceneView.rotation = Quaternion.Euler(new Vector3(90, 0, 0));
+                if ( pathGenerator.FlagList_Local != null &&
+                     flagListEditIndex < pathGenerator.FlagList_Local.Count &&
+                     flagListEditIndex != -1)
+                    sceneView.pivot = pathGenerator.FlagList_Local[flagListEditIndex];
+                else if( pathGenerator.AngleList_Local != null &&
+                         angleListEditIndex < pathGenerator.AngleList_Local.Count &&
+                         angleListEditIndex != -1)
+                    sceneView.pivot = pathGenerator.AngleList_Local[angleListEditIndex];
+                else
+                    sceneView.pivot = pathGenerator.transform.position;
+
+                sceneView.size = 10;
+                sceneView.isRotationLocked = true;
+                sceneView.orthographic = true;
+            } else {
+                sceneView.rotation = OldSceneViewRotation;
+                sceneView.size = OldSceneViewSize;
+                sceneView.pivot = OldSceneViewPiviot;
+                sceneView.isRotationLocked = false;
+                sceneView.orthographic = false;
+            }
         }
 
         void DeleteAngleButtonClick(int i) {
@@ -278,7 +428,9 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         public void OnSceneGUI() {
             PathGenerator pathGenerator = target as PathGenerator;      // 조절할 PathGenerator
-            Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            try {
+                Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
+            } catch(System.Exception e) { e.ToString(); return; }
 
             Quaternion rotation = pathGenerator.transform.rotation;
             Matrix4x4 m_rotate  = Matrix4x4.Rotate(rotation);
@@ -341,8 +493,8 @@ namespace CurvedPathGenertator {
             //===================================================================================================================================================
             if (FlagList.Count < 2) {
                 FlagList.Clear();
-                FlagList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
-                FlagList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
+                FlagList.Add(new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f)));
+                FlagList.Add(new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f)));
                 Count = 2;
             }
 
@@ -353,11 +505,11 @@ namespace CurvedPathGenertator {
             if (pathGenerator.isClosed && AngleList.Count < FlagList.Count) {
                 AngleList.Clear();
                 for(int i = 0; i < Count; i++)
-                    AngleList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
+                    AngleList.Add(new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f)));
             } else if (!pathGenerator.isClosed && AngleList.Count < FlagList.Count-1) {
                 AngleList.Clear();
                 for (int i = 0; i < Count - 1; i++)
-                    AngleList.Add(new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)));
+                    AngleList.Add(new Vector3(UnityEngine.Random.Range(-3f, 3f), 0f, UnityEngine.Random.Range(-3f, 3f)));
             }
 
             //===================================================================================================================================================
@@ -416,7 +568,8 @@ namespace CurvedPathGenertator {
             //===================================================================================================================================================
             try {
                 for (int i = 0; i < Count; i++) {
-                    if (pathGenerator.EditMode == 1) {
+                    if (pathGenerator.EditMode == 1 && 
+                        ((flagListEditIndex == -1 && angleListEditIndex == -1) || flagListEditIndex == i)) {
                         pathGenerator.FlagList_Local[i] = Handles.PositionHandle(pathGenerator.FlagList_Local[i],
                                                               pathGenerator.transform.localRotation);
                         pathGenerator.FlagList[i] = pathGenerator.FlagList_Local[i] - pathGenerator.transform.position;
@@ -431,7 +584,8 @@ namespace CurvedPathGenertator {
                     try {
                         if ( (!pathGenerator.isClosed && ( i < Count-1) && AngleList[i] != null) || 
                                 (pathGenerator.isClosed && AngleList[i] != null )) {
-                            if (pathGenerator.EditMode == 1) {
+                            if (pathGenerator.EditMode == 1 &&
+                                 ( ( flagListEditIndex == -1 && angleListEditIndex == -1 ) || angleListEditIndex == i )) {
                                 pathGenerator.AngleList_Local[i] = Handles.PositionHandle(pathGenerator.AngleList_Local[i],
                                                                        pathGenerator.transform.localRotation);
                                 pathGenerator.AngleList[i] = pathGenerator.AngleList_Local[i] - pathGenerator.transform.position;
@@ -448,10 +602,10 @@ namespace CurvedPathGenertator {
                             Vector3 endPoint = (i == Count - 1) ? 
                                         pathGenerator.FlagList_Local[0] : pathGenerator.FlagList_Local[i + 1];
 
-                            Handles.color = Color.green;
-                            Handles.DrawDottedLine(startPoint, middlePoint,1f);
-                            Handles.color = Color.yellow;
-                            Handles.DrawDottedLine(middlePoint, endPoint,1f);
+                            Handles.color = GuidLineColor_1;
+                            Handles.DrawDottedLine(startPoint, middlePoint,2f);
+                            Handles.color = GuidLineColor_2;
+                            Handles.DrawDottedLine(middlePoint, endPoint,2f);
 
                             List<Vector3> test = new List<Vector3>();
                             for (int j = 0; j < Density; j++) {
@@ -463,7 +617,7 @@ namespace CurvedPathGenertator {
 
                             }
                             test.Add(endPoint);
-                            Handles.color = Color.cyan;
+                            Handles.color = GuidLineColor_3;
                             Handles.DrawPolyLine(test.ToArray<Vector3>());
                         }
                     } catch (System.Exception e) {
@@ -477,36 +631,127 @@ namespace CurvedPathGenertator {
 
             if(isShowIndex) {
                 if (pathGenerator.FlagList_Local != null && pathGenerator.FlagList_Local.Count > 0) {
-                    for (int i = 0; i < pathGenerator.FlagList_Local.Count; i++)
-                        DrawTextLabelOnScene(pathGenerator.FlagList_Local[i], Color.green, "[ " + (i+1) + " ]");
+                    for (int i = 0; i < pathGenerator.FlagList_Local.Count; i++) {
+                        if (flagListEditIndex == i) continue;
+                        DrawTextLabelOnScene(pathGenerator.FlagList_Local[i], Color.green, "[ " + (i+1) + " ]", true, i);
+                    }
                 }
 
                 if (pathGenerator.AngleList_Local != null && pathGenerator.AngleList_Local.Count > 0) {
-                    for (int i = 0; i < pathGenerator.AngleList_Local.Count; i++)
+                    for (int i = 0; i < pathGenerator.AngleList_Local.Count; i++) {
+                        if (angleListEditIndex == i) continue;
                         DrawTextLabelOnScene(pathGenerator.AngleList_Local[i], Color.yellow,
                             ( pathGenerator.isClosed && i == pathGenerator.AngleList_Local.Count - 1 ) ? 
-                                                            ( (i + 1) + " → 1") : (( i + 1 ) + " → " + ( i + 2 ) ));
+                                                            ( (i + 1) + " → 1") : (( i + 1 ) + " → " + ( i + 2 ) ), false, i);
+                    }
                 }
+            }
+
+            if (flagListEditIndex != -1) {
+                angleListEditIndex = -1;
+                if (pathGenerator.FlagList_Local != null && pathGenerator.FlagList_Local.Count > 0 &&
+                    flagListEditIndex < pathGenerator.FlagList_Local.Count )
+                    pathGenerator.FlagList_Local[flagListEditIndex]=
+                        DrawVector3FieldOnScene(pathGenerator.FlagList_Local[flagListEditIndex],
+                                                PathGeneratorGUILanguage.GetLocalText("PG_Node") + " [" + (flagListEditIndex+1) + "]",
+                                                Color.green);
             }
         }
 
-        private void DrawTextLabelOnScene(Vector3 worldPos, Color TextColor, string Text) {
-            Vector2 guiLoc = HandleUtility.WorldToGUIPoint(worldPos);  // 오브젝트의 월드좌표를 2D 좌표로 변환
-            var rect = new Rect(guiLoc.x - 20f, guiLoc.y + 10, 40, 20);    // 라벨 위치 지정
+        private void DrawTextLabelOnScene(Vector3 worldPos, Color TextColor, string Text, bool isFlag, int i) {
+            Vector3 guiLoc = HandleUtility.WorldToGUIPointWithDepth(worldPos);
+            if (guiLoc.z < 0) return;
+            var rect = new Rect(guiLoc.x - 30f, guiLoc.y + 10, 60, 20);
             Handles.BeginGUI();
             Color oldBgColor = GUI.backgroundColor;
-            Color oldTextColor = GUI.skin.box.normal.textColor;
+            Color oldTextColor_normal = GUI.skin.box.normal.textColor;
+            Color oldTextColor_hover = GUI.skin.box.hover.textColor;
+            Color oldTextColor_active = GUI.skin.box.active.textColor;
+            Color oldTextColor_focused = GUI.skin.box.focused.textColor;
             GUI.skin.box.normal.textColor = TextColor;
-            GUI.backgroundColor = new Color(0, 0, 0, 0.7f);     // 배경 색 지정
-            GUI.Box(rect, Text);      // Box UI 표시
+            GUI.skin.box.hover.textColor = TextColor;
+            GUI.skin.box.active.textColor = TextColor;
+            GUI.skin.box.focused.textColor = TextColor;
+            GUI.backgroundColor = new Color(0, 0, 0, 0.7f);
+            GUI.Box(rect, Text);
+            if (GUI.Button(rect, "", GUIStyle.none)) {
+                if (isFlag) EditFlagButtonClick(i);
+                else EditAngleButtonClick(i);
+            }
             GUI.backgroundColor = oldBgColor;
-            GUI.skin.box.normal.textColor = oldTextColor;
+            GUI.skin.box.normal.textColor = oldTextColor_normal;
+            GUI.skin.box.hover.textColor = oldTextColor_hover;
+            GUI.skin.box.active.textColor = oldTextColor_active;
+            GUI.skin.box.focused.textColor = oldTextColor_focused;
             Handles.EndGUI();
         }
 
+        private Vector3 DrawVector3FieldOnScene(Vector3 worldPos, string text, Color highlight) {
+            Vector3 result = worldPos;
+            Vector3 guiLoc = HandleUtility.WorldToGUIPointWithDepth(worldPos);
+            if (guiLoc.z < 0) return worldPos;
+
+            Rect BGRect = new Rect(guiLoc.x - 115f, guiLoc.y + 15, 230, 100);
+            Rect UIRect = new Rect(BGRect.x + 10f, BGRect.y + 10, BGRect.width - 20, BGRect.height- 20);
+
+            Color oldColor = GUI.color;
+            Color oldContentColor = GUI.contentColor;
+            Color oldTextColor_label_normal = EditorStyles.label.normal.textColor;
+            Color oldTextColor_label_focused = EditorStyles.label.focused.textColor;
+            Color oldTextColor_label_active = EditorStyles.label.active.textColor;
+            Color oldTextColor_label_hover = EditorStyles.label.hover.textColor;
+            Handles.BeginGUI();
+            GUI.color = new Color(0, 0, 0, 0.7f);
+            GUI.Box(BGRect, "");
+            GUI.color = oldColor;
+            Handles.EndGUI();
+            GUIStyle titleStyle = new GUIStyle(EditorStyles.label);
+            titleStyle.normal.textColor = highlight;
+            titleStyle.fontSize = 18;
+            titleStyle.alignment = TextAnchor.MiddleCenter;
+
+
+            Handles.BeginGUI();
+            GUILayout.BeginArea(UIRect);
+            GUI.color = new Color(1f,1f,1f,0.6f);
+            EditorStyles.label.normal.textColor = Color.white;
+            EditorStyles.label.focused.textColor = highlight;
+            EditorStyles.label.active.textColor = highlight;
+            EditorStyles.label.hover.textColor = highlight;
+
+            GUILayout.Label(text, titleStyle);
+            GUILayout.Space(5);
+            result = EditorGUILayout.Vector3Field("", worldPos, GUILayout.Width(UIRect.width));
+            GUILayout.Space(5);
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_Close"))) {
+                flagListEditIndex = -1;
+                angleListEditIndex = -1;
+            }
+
+            GUI.color = oldColor;
+            EditorStyles.label.normal.textColor = oldTextColor_label_normal;
+            EditorStyles.label.focused.textColor = oldTextColor_label_focused;
+            EditorStyles.label.active.textColor = oldTextColor_label_active;
+            EditorStyles.label.hover.textColor = oldTextColor_label_hover;
+            GUI.contentColor = oldContentColor;
+            GUILayout.EndArea();
+            Handles.EndGUI();
+
+            return result;
+        }
 
         public void OnEnable() {
             PathGeneratorGUILanguage.InitLocalization();
+            isTopViewMode = false;
+        }
+
+        public void OnDisable() {
+            try {
+                if(isTopViewMode)
+                    TopViewButtonClick(false);
+            } catch(SystemException e) {
+                e.ToString();
+            }
         }
     }
 

@@ -26,12 +26,13 @@ namespace CurvedPathGenertator {
 
         static public void InitLocalization() {
             string key_text;
-            if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
-                return;
+            //if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
+            //    return;
 
             ENG_TEXT = new Dictionary<string, string>();
             KOR_TEXT = new Dictionary<string, string>();
             JAP_TEXT = new Dictionary<string, string>();
+
             //=============================================================================================================
             //  [PG] Path Generator GUI 텍스트 설정
             //=============================================================================================================
@@ -45,6 +46,25 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "KimYC1223 제공");
             JAP_TEXT.Add(key_text, "KimYC1223 によって開発されました");
 
+            key_text = "PG_Node";
+            ENG_TEXT.Add(key_text, "Node");
+            KOR_TEXT.Add(key_text, "노드");
+            JAP_TEXT.Add(key_text, "ノード");
+
+            key_text = "PG_Angle";
+            ENG_TEXT.Add(key_text, "Curved Path Generator");
+            KOR_TEXT.Add(key_text, "앵글");
+            JAP_TEXT.Add(key_text, "角度");
+
+            key_text = "PG_Close";
+            ENG_TEXT.Add(key_text, "Close");
+            KOR_TEXT.Add(key_text, "닫기");
+            JAP_TEXT.Add(key_text, "閉じる");
+
+            key_text = "PG_H1_EditorSetting";
+            ENG_TEXT.Add(key_text, "Editor setting");
+            KOR_TEXT.Add(key_text, "에디터 관련");
+            JAP_TEXT.Add(key_text, "エディタ関連");
 
             key_text = "PG_PathTypeChangeButton_ToOpen";
             ENG_TEXT.Add(key_text, "Change to opened path");
@@ -76,10 +96,40 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "전체 제어");
             JAP_TEXT.Add(key_text, "全体制御");
 
-            key_text = "PG_ShowLableToggle";
-            ENG_TEXT.Add(key_text, "Show Lable in Scene");
-            KOR_TEXT.Add(key_text, "Scene에서 번호 보이기");
-            JAP_TEXT.Add(key_text, "Sceneで番号を表示");
+            key_text = "PG_ShowLabel_Label";
+            ENG_TEXT.Add(key_text, "Visual options : ");
+            KOR_TEXT.Add(key_text, "Scene에서 ...");
+            JAP_TEXT.Add(key_text, "シーン内の ...");
+
+            key_text = "PG_ShowLabelToggle";
+            ENG_TEXT.Add(key_text, "Show labels");
+            KOR_TEXT.Add(key_text, "레이블 그리기");
+            JAP_TEXT.Add(key_text, "ラベルの表示");
+
+            key_text = "PG_ShowIconsToggle";
+            ENG_TEXT.Add(key_text, "Show icons");
+            KOR_TEXT.Add(key_text, "아이콘 그리기");
+            JAP_TEXT.Add(key_text, "アイコンの表示");
+
+            key_text = "PG_TopViewModeButton_toTop";
+            ENG_TEXT.Add(key_text, "Change to top view mode");
+            KOR_TEXT.Add(key_text, "탑뷰 모드로 변경");
+            JAP_TEXT.Add(key_text, "トップビューモードに変更する");
+
+            key_text = "PG_TopViewModeButton_Reset";
+            ENG_TEXT.Add(key_text, "Reset view mode");
+            KOR_TEXT.Add(key_text, "뷰 모드 리셋");
+            JAP_TEXT.Add(key_text, "ビューモードをリセットする");
+
+            key_text = "PG_Colors_Label";
+            ENG_TEXT.Add(key_text, "Guideline Colors");
+            KOR_TEXT.Add(key_text, "가이드라인 색상");
+            JAP_TEXT.Add(key_text, "ガイドライン 色");
+
+            key_text = "PG_H1_Node";
+            ENG_TEXT.Add(key_text, "Nodes");
+            KOR_TEXT.Add(key_text, "노드");
+            JAP_TEXT.Add(key_text, "ノード");
 
             key_text = "PG_NodeList_Label";
             ENG_TEXT.Add(key_text, "Node List");
@@ -107,9 +157,9 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "削除");
 
             key_text = "PG_NodeListTable_DeleteButton";
-            ENG_TEXT.Add(key_text, "X");
-            KOR_TEXT.Add(key_text, "X");
-            JAP_TEXT.Add(key_text, "X");
+            ENG_TEXT.Add(key_text, "[-]");
+            KOR_TEXT.Add(key_text, "[-]");
+            JAP_TEXT.Add(key_text, "[-]");
 
             key_text = "PG_NodeListTable_Empty";
             ENG_TEXT.Add(key_text, "Empty");
@@ -117,9 +167,14 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "空いています。");
 
             key_text = "PG_NodeList_CreateNodeButton";
-            ENG_TEXT.Add(key_text, "Create node");
-            KOR_TEXT.Add(key_text, "노드 생성");
-            JAP_TEXT.Add(key_text, "ノード生成");
+            ENG_TEXT.Add(key_text, "[+] Create node");
+            KOR_TEXT.Add(key_text, "[+] 노드 생성");
+            JAP_TEXT.Add(key_text, "[+] ノード生成");
+
+            key_text = "PG_H1_Angle";
+            ENG_TEXT.Add(key_text, "Angles");
+            KOR_TEXT.Add(key_text, "앵글");
+            JAP_TEXT.Add(key_text, "アングル");
         }
 
         static public string GetLocalText(string key_text) {

@@ -20,8 +20,9 @@ using static UnityEngine.GraphicsBuffer;
 namespace CurvedPathGenertator {
     [System.Serializable]
     public class PathGenerator : MonoBehaviour {
-        public bool isClosed = true;            // is this path closed?
-        public bool isLiveRender = true;        // is draw the path in runtime?
+        public bool isClosed = false;           // is this path closed ?
+        public bool isLiveRender = true;        // is draw the path in runtime ?
+        public bool isShowingIcons = true;      // is showing icons ?
         public int PathDensity = 30;            // Density of guide objects between Flags
 
         public int EditMode = 0;   // (Editor) is individaul control mode?
@@ -171,21 +172,23 @@ namespace CurvedPathGenertator {
         //=================================================================================================================
         public void OnDrawGizmosSelected() {
             Tools.hidden = (EditMode != 0);
-            Gizmos.DrawIcon(this.transform.position, "PathGenerator/PG_Anchor.png", true);
-            if (FlagList_Local != null && FlagList_Local.Count > 0) {
-                for (int i = 0; i < FlagList_Local.Count; i++) {
-                    if (i == 0)
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Start.png", ( EditMode != 0 ));
-                    else if (!isClosed && i == FlagList_Local.Count - 1)
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_End.png", ( EditMode != 0 ));
-                    else 
-                        Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Node.png", ( EditMode != 0 ));
+            if(isShowingIcons) {
+                Gizmos.DrawIcon(this.transform.position, "PathGenerator/PG_Anchor.png", true);
+                if (FlagList_Local != null && FlagList_Local.Count > 0) {
+                    for (int i = 0; i < FlagList_Local.Count; i++) {
+                        if (i == 0)
+                            Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Start.png", ( EditMode != 0 ));
+                        else if (!isClosed && i == FlagList_Local.Count - 1)
+                            Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_End.png", ( EditMode != 0 ));
+                        else 
+                            Gizmos.DrawIcon(FlagList_Local[i], "PathGenerator/PG_Node.png", ( EditMode != 0 ));
+                    }
                 }
-            }
 
-            if (AngleList_Local != null && AngleList_Local.Count > 0)
-                for (int i = 0; i < AngleList_Local.Count; i++)
-                    Gizmos.DrawIcon(AngleList_Local[i], "PathGenerator/PG_Handler.png", ( EditMode != 0 ));
+                if (AngleList_Local != null && AngleList_Local.Count > 0)
+                    for (int i = 0; i < AngleList_Local.Count; i++)
+                        Gizmos.DrawIcon(AngleList_Local[i], "PathGenerator/PG_Handler.png", ( EditMode != 0 ));
+            }
         }
         
     }
