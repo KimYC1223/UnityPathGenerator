@@ -52,9 +52,14 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "ノード");
 
             key_text = "PG_Angle";
-            ENG_TEXT.Add(key_text, "Curved Path Generator");
+            ENG_TEXT.Add(key_text, "Angle");
             KOR_TEXT.Add(key_text, "앵글");
             JAP_TEXT.Add(key_text, "角度");
+
+            key_text = "PG_Center";
+            ENG_TEXT.Add(key_text, "Move to center");
+            KOR_TEXT.Add(key_text, "중점으로 이동");
+            JAP_TEXT.Add(key_text, "中央に移動");
 
             key_text = "PG_Close";
             ENG_TEXT.Add(key_text, "Close");
@@ -75,6 +80,16 @@ namespace CurvedPathGenertator {
             ENG_TEXT.Add(key_text, "Change to closed path");
             KOR_TEXT.Add(key_text, "닫힌 패스로 변경");
             JAP_TEXT.Add(key_text, "クローズドパスに変更");
+
+            key_text = "PG_PathTypeChangeButton_isLivePath";
+            ENG_TEXT.Add(key_text, "Update path in runtime");
+            KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
+            JAP_TEXT.Add(key_text, "ベイクドパス");
+
+            key_text = "PG_PathTypeChangeButton_isLivePathWarning";
+            ENG_TEXT.Add(key_text, "Updates the path every frame. Therefore, even if the node or angle changes position at runtime, it is applied to the path immediately. However, the amount of calculation may increase.");
+            KOR_TEXT.Add(key_text, "매 프레임마다 경로를 업데이트 합니다. 따라서, 런타임에서 Node나 Angle의 위치가 바뀌어도 즉시 경로에 적용됩니다. 다만 계산량이 많아 질 수 있습니다.");
+            JAP_TEXT.Add(key_text, "フレームごとにパスを更新します。 したがって、ランタイムでNodeやAngleの位置が変わっても直ちに経路に適用されます。 ただし、計算量が多くなる可能性があります。");
 
             key_text = "PG_EditorModeSelect_Label";
             ENG_TEXT.Add(key_text, "Node & Anchor editor mode");
@@ -113,7 +128,7 @@ namespace CurvedPathGenertator {
 
             key_text = "PG_TopViewModeButton_toTop";
             ENG_TEXT.Add(key_text, "Change to top view mode");
-            KOR_TEXT.Add(key_text, "탑뷰 모드로 변경");
+            KOR_TEXT.Add(key_text, "탑 뷰 모드로 변경");
             JAP_TEXT.Add(key_text, "トップビューモードに変更する");
 
             key_text = "PG_TopViewModeButton_Reset";
@@ -175,6 +190,91 @@ namespace CurvedPathGenertator {
             ENG_TEXT.Add(key_text, "Angles");
             KOR_TEXT.Add(key_text, "앵글");
             JAP_TEXT.Add(key_text, "アングル");
+
+            key_text = "PG_AngleList_Label";
+            ENG_TEXT.Add(key_text, "Angle List");
+            KOR_TEXT.Add(key_text, "앵글 리스트");
+            JAP_TEXT.Add(key_text, "アングルリスト");
+
+            key_text = "PG_AngleList_From";
+            ENG_TEXT.Add(key_text, "From");
+            KOR_TEXT.Add(key_text, "기점");
+            JAP_TEXT.Add(key_text, "起点");
+
+            key_text = "PG_AngleList_To";
+            ENG_TEXT.Add(key_text, "To");
+            KOR_TEXT.Add(key_text, "종점");
+            JAP_TEXT.Add(key_text, "終点");
+
+            key_text = "PG_TotalControl";
+            ENG_TEXT.Add(key_text, "Total Control");
+            KOR_TEXT.Add(key_text, "전체 제어");
+            JAP_TEXT.Add(key_text, "全体制御");
+
+            key_text = "PG_TotalControl_Label";
+            ENG_TEXT.Add(key_text, "for the all nodes & angles...");
+            KOR_TEXT.Add(key_text, "모든 노드와 앵글들에 대해...");
+            JAP_TEXT.Add(key_text, "すべてのノードと角度に対して...");
+
+            key_text = "PG_TotalControl_SetZeroToX";
+            ENG_TEXT.Add(key_text, "X to 0");
+            KOR_TEXT.Add(key_text, "X값을 0으로");
+            JAP_TEXT.Add(key_text, "X値を0に");
+
+            key_text = "PG_TotalControl_SetZeroToY";
+            ENG_TEXT.Add(key_text, "Y to 0;");
+            KOR_TEXT.Add(key_text, "Y값을 0으로");
+            JAP_TEXT.Add(key_text, "Y値を0に");
+
+            key_text = "PG_TotalControl_SetZeroToZ";
+            ENG_TEXT.Add(key_text, "Z to 0");
+            KOR_TEXT.Add(key_text, "Z값을 0으로");
+            JAP_TEXT.Add(key_text, "Z値を0に");
+
+            key_text = "PG_TotalControl_SetAvgToX";
+            ENG_TEXT.Add(key_text, "X equalization");
+            KOR_TEXT.Add(key_text, "X값 평준화");
+            JAP_TEXT.Add(key_text, "X値平準化");
+
+            key_text = "PG_TotalControl_SetAvgToY";
+            ENG_TEXT.Add(key_text, "Y값 equalization");
+            KOR_TEXT.Add(key_text, "Y값 평준화");
+            JAP_TEXT.Add(key_text, "Y値平準化");
+
+            key_text = "PG_TotalControl_SetAvgToZ";
+            ENG_TEXT.Add(key_text, "Z equalization");
+            KOR_TEXT.Add(key_text, "Z값 평준화");
+            JAP_TEXT.Add(key_text, "Z値平準化");
+
+            key_text = "PG_TotalControl_SpecificValue";
+            ENG_TEXT.Add(key_text, "Specific value");
+            KOR_TEXT.Add(key_text, "특정값");
+            JAP_TEXT.Add(key_text, "特定の値");
+
+            key_text = "PG_TotalControl_SetSpecificToX";
+            ENG_TEXT.Add(key_text, "X to a specific value");
+            KOR_TEXT.Add(key_text, "X값을 특정값으로");
+            JAP_TEXT.Add(key_text, "Xから特定の値");
+
+            key_text = "PG_TotalControl_SetSpecificToY";
+            ENG_TEXT.Add(key_text, "Y to a specific value");
+            KOR_TEXT.Add(key_text, "Y값을 특정값으로");
+            JAP_TEXT.Add(key_text, "Yから特定の値");
+
+            key_text = "PG_TotalControl_SetSpecificToZ";
+            ENG_TEXT.Add(key_text, "Z to a specific value");
+            KOR_TEXT.Add(key_text, "Z값을 특정값으로");
+            JAP_TEXT.Add(key_text, "Zから特定の値");
+
+            key_text = "PG_H1_Rendering";
+            ENG_TEXT.Add(key_text, "Rendering");
+            KOR_TEXT.Add(key_text, "렌더링");
+            JAP_TEXT.Add(key_text, "レンダリング");
+
+            key_text = "PG_Rendering_isGeneratePathMesh";
+            ENG_TEXT.Add(key_text, "Generate path mesh in runtime");
+            KOR_TEXT.Add(key_text, "런타임에 경로 메시를 생성합니다.");
+            JAP_TEXT.Add(key_text, "実行時にパスメッシュを生成する");
         }
 
         static public string GetLocalText(string key_text) {

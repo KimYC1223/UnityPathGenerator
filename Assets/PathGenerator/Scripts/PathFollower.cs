@@ -47,8 +47,10 @@ namespace CurvedPathGenertator {
         //===============================================================================================
         void Start() {
             targetRigidbody = GetComponent<Rigidbody>();
-            if (path == null)
+            if (path == null) {
                 Debug.LogError("no path\n경로가 없음");
+                return;
+            }
             target = this.gameObject;
             nextPath = path.PathList[1];
             this.transform.position = path.PathList[0];
@@ -61,6 +63,8 @@ namespace CurvedPathGenertator {
         // 속도와 방향 설정 후 거리 계산
         //===============================================================================================
         void FixedUpdate() {
+            if (path == null) return; 
+
             //===========================================================================================
             //  If it is not moving, stop object and return
             //  움직이지 않는다면, 물체를 멈추고 종료
@@ -174,6 +178,8 @@ namespace CurvedPathGenertator {
         // 지금까지 지나온 경로의 길이를 반환하는 메소드
         //===============================================================================================
         public float GetPassedLength() {
+            if (path == null) return -1;
+
             if (pathIndex == 1)
                 return ( path.PathList[0] - this.transform.position ).magnitude;
 
@@ -201,6 +207,7 @@ namespace CurvedPathGenertator {
         // 움직임
         //===============================================================================================
         public void StartFollow() {
+            if (path == null) return;
             isMove = true;
         }
     }
