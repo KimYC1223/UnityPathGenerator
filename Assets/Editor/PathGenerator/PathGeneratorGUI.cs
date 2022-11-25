@@ -11,6 +11,12 @@ using UnityEngine.UIElements;
 using static UnityEditor.PlayerSettings;
 
 //===============================================================================================================================================================
+/*      ,------.   ,---. ,--------.,--.  ,--.     ,----.   ,------.,--.  ,--.,------.,------.   ,---. ,--------. ,-----. ,------.  
+        |  .--. ' /  O  \'--.  .--'|  '--'  |    '  .-./   |  .---'|  ,'.|  ||  .---'|  .--. ' /  O  \'--.  .--''  .-.  '|  .--. ' 
+        |  '--' ||  .-.  |  |  |   |  .--.  |    |  | .---.|  `--, |  |' '  ||  `--, |  '--'.'|  .-.  |  |  |   |  | |  ||  '--'.' 
+        |  | --' |  | |  |  |  |   |  |  |  |    '  '--'  ||  `---.|  | `   ||  `---.|  |\  \ |  | |  |  |  |   '  '-'  '|  |\  \  
+        `--'     `--' `--'  `--'   `--'  `--'     `------' `------'`--'  `--'`------'`--' '--'`--' `--'  `--'    `-----' `--' '--'                             */
+//===============================================================================================================================================================
 //
 //  PATH GENERATOR GUI CLASS
 //
@@ -50,6 +56,58 @@ namespace CurvedPathGenertator {
         private Color GuidLineColor_1 = Color.green;                                    // Guidline preview color 1
         private Color GuidLineColor_2 = Color.yellow;                                   // Guidline preview color 2
         private Color GuidLineColor_3 = Color.cyan;                                     // Path preview color
+
+        private float SetValue = 0;                                                     // Set ( X | Y | Z ) of all nodes and angles to this value
+        private bool CreateMeshFlag = false;                                            // if this value is true, create mesh of path.
+        private float LineMehsWidth = 0.2f;                                             // width of line mesh
+        #endregion
+
+        #region PathGenerator_TransformMethods
+        //=======================================================================================================================================================
+        //  Transform point method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        //  A method that changes the world coordinates according to the parent's transform information
+        //  부모의 transform 정보에 따라 world 좌표를 변경하는 메소드
+        //
+        //  It proceeds in the order of " Rotate -> Scale up / down -> Move "
+        //  " 회전 -> 스케일 업 / 다운 -> 이동 " 순서로 진행 됨
+        //=======================================================================================================================================================
+        private Vector3 TransformPoint(Vector3 points, Matrix4x4 m_rotate) {
+            PathGenerator pathGenerator = target as PathGenerator;
+            Vector3 result = points;
+
+            result = m_rotate.MultiplyPoint3x4(result);                                 // Step1 . Rotate
+            result += pathGenerator.transform.position;                                 // Step3 . Move
+            result = new Vector3(                                                       // Step2 . Scale-up/down
+                result.x * pathGenerator.transform.lossyScale.x,
+                result.y * pathGenerator.transform.lossyScale.y,
+                result.z * pathGenerator.transform.lossyScale.z
+            );
+            return result;
+        }
+
+        //=======================================================================================================================================================
+        //  Revers transform point method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        //  A method that changes world coordinates to local coordinates according to the parent's transform information
+        //  world 좌표를 부모의 transform 정보에 따라 local 좌표로 변경하는 메소드
+        //
+        //  It proceeds in the order of " Move -> Scale up / down -> Rotate "          * Reverse order of TransformPoint methods
+        //  " 이동 -> 스케일 업 / 다운 -> Rotate " 순서로 진행 됨                      * TransformPoint 메소드의 역순서임
+        //=======================================================================================================================================================
+        private Vector3 ReverseTransformPoint(Vector3 points, Matrix4x4 m_reverse) {
+            PathGenerator pathGenerator = target as PathGenerator;
+            Vector3 result = points;
+
+            result = result - pathGenerator.transform.position;                         // Step1 . Move           
+            result = m_reverse.MultiplyPoint3x4(result);                                // Step3 . Rotate
+            result = new Vector3(                                                       // Step2 . Scale-up/down
+                result.x / pathGenerator.transform.lossyScale.x,
+                result.y / pathGenerator.transform.lossyScale.y,
+                result.z / pathGenerator.transform.lossyScale.z
+            );
+            return result;
+        }
         #endregion
 
         #region PathGenerator_InspectorUI_Main
@@ -60,6 +118,7 @@ namespace CurvedPathGenertator {
         // 인스펙터가 그려질 때 마다 호출되는 함수
         //=======================================================================================================================================================
         public override void OnInspectorGUI() {
+
             #region PathGenerator_InspectorUI_Main_StartsUp
             PathGenerator pathGenerator = target as PathGenerator;
 
@@ -127,8 +186,14 @@ namespace CurvedPathGenertator {
             //===================================================================================================================================================
             GUILayout.Label( PathGeneratorGUILanguage.GetLocalText("PG_Title"), ComponentTitle);
             GUI.enabled = false;
-            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_SubTitle"));
+            GUILayout.Label( PathGeneratorGUILanguage.GetLocalText("PG_SubTitle") );
             GUI.enabled = true;
+            GUILayout.Space(8);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Path density");
+            pathGenerator.PathDensity = EditorGUILayout.IntField(pathGenerator.PathDensity);
+            GUILayout.EndHorizontal();
             GUILayout.Space(8);
 
             //===================================================================================================================================================
@@ -322,8 +387,8 @@ namespace CurvedPathGenertator {
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_AngleList_From"), EditorStyles.toolbarButton, GUILayout.Width(41f));
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_AngleList_To"), EditorStyles.toolbarButton, GUILayout.Width(41f));
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_LocalPosition"),
-                                                    EditorStyles.toolbarButton, GUILayout.Width(EditorGUIUtility.currentViewWidth - 165f));
-            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), EditorStyles.toolbarButton, GUILayout.Width(60f));
+                                                    EditorStyles.toolbarButton, GUILayout.Width(EditorGUIUtility.currentViewWidth - 185f));
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"), EditorStyles.toolbarButton, GUILayout.Width(80f));
             GUILayout.EndHorizontal();
 
             //===================================================================================================================================================
@@ -373,11 +438,11 @@ namespace CurvedPathGenertator {
                         GUILayout.Label(( i + 1 ).ToString(), GUILayout.Width(39f));                        // Indexs
                         GUILayout.Label( ( (pathGenerator.isClosed && i == pathGenerator.AngleList.Count - 1) ? 0 : (i + 2) ).ToString(), GUILayout.Width(39f));
                         GUI.enabled = false;                                                                // Position value
-                        EditorGUILayout.Vector3Field("", pathGenerator.AngleList[i], GUILayout.Width(EditorGUIUtility.currentViewWidth - 175f));
+                        EditorGUILayout.Vector3Field("", pathGenerator.AngleList[i], GUILayout.Width(EditorGUIUtility.currentViewWidth - 195f));
                         GUI.enabled = true;
                         if (GUILayout.Button(                                                               // Edit button
                             PathGeneratorGUILanguage.GetLocalText("PG_NodeListTable_Edit"),
-                            EditorStyles.toolbarButton, GUILayout.Width(60f)))
+                            EditorStyles.toolbarButton, GUILayout.Width(80f)))
                             EditAngleButtonClick(i);
                         GUILayout.EndHorizontal();
                     }
@@ -416,6 +481,90 @@ namespace CurvedPathGenertator {
             GUILayout.Space(3);
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_Label"));
             GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // X | Y | Z to 0
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Set ( X | Y | Z ) of all node and angles to 0
+            // 모든 노드와 앵글에 대한 ( X | Y | Z ) 값을 0으로 설정
+            //===================================================================================================================================================
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetZeroToX"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                Xto0ButtonClick();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetZeroToY"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                Yto0ButtonClick();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetZeroToZ"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                Zto0ButtonClick();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(3);
+
+            //===================================================================================================================================================
+            // X | Y | Z to AVG
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Set ( X | Y | Z ) of all node and angles to average
+            // 모든 노드와 앵글에 대한 ( X | Y | Z ) 값을 평균값으로으로 설정
+            //===================================================================================================================================================
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetAvgToX"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                XtoAVGButtonClick();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetAvgToY"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                YtoAVGButtonClick();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetAvgToZ"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                ZtoAVGButtonClick();
+            GUILayout.EndHorizontal();
+            GUILayout.Space(3);
+
+            //===================================================================================================================================================
+            // X | Y | Z to specific value
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Set ( X | Y | Z ) of all node and angles to specific value
+            // 모든 노드와 앵글에 대한 ( X | Y | Z ) 값을 특정값으로으로 설정
+            //===================================================================================================================================================
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetSpecificToX"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                XtoSomethingButtonClick(SetValue);
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetSpecificToY"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                YtoSomethingButtonClick(SetValue);
+            if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SetSpecificToZ"),
+                                                GUILayout.Width(( EditorGUIUtility.currentViewWidth - 45f ) * 0.333f)))
+                ZtoSomethingButtonClick(SetValue);
+            GUILayout.EndHorizontal();
+            GUILayout.Space(3);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_SpecificValue"));
+            SetValue = EditorGUILayout.FloatField(SetValue);
+            GUILayout.EndHorizontal();
+            GUILayout.Space(15);
+            GuiLine();
+            GUILayout.Space(15);
+            #endregion
+
+            #region PathGenerator_InspectorUI_Main_Rendering
+            //===================================================================================================================================================
+            // Rendering
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Panel to rendering path
+            // 경로를 렌더링하는 패널
+            //===================================================================================================================================================
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_H1_Rendering"), H1Text);
+            GUILayout.Space(3);
+            GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_TotalControl_Label"));
+            GUILayout.Space(5);
+            if (GUILayout.Button("Rendering") && !CreateMeshFlag)
+                CreateMeshFlag = true;
+            GUILayout.Space(3);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Line mesh width");
+            LineMehsWidth = EditorGUILayout.FloatField(LineMehsWidth);
+            GUILayout.EndHorizontal();
             #endregion
 
             #endregion
@@ -501,14 +650,8 @@ namespace CurvedPathGenertator {
             Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);                                                    // Rotation calculation Matrix
             int i = pathGenerator.NodeList.Count - 1;                                                           // Index to convert
 
-            pathGenerator.NodeList_World.Add(pathGenerator.NodeList[i]);                                        // Local -> World transform : 
-            pathGenerator.NodeList_World[i] = m_rotate.MultiplyPoint3x4(pathGenerator.NodeList_World[i]);       // Step1 . Rotate
-            pathGenerator.NodeList_World[i] = new Vector3(                                                      // Step2 . Scale-up
-                pathGenerator.NodeList_World[i].x * pathGenerator.transform.lossyScale.x,
-                pathGenerator.NodeList_World[i].y * pathGenerator.transform.lossyScale.y,
-                pathGenerator.NodeList_World[i].z * pathGenerator.transform.lossyScale.z
-            );
-            pathGenerator.NodeList_World[i] += pathGenerator.transform.position;                                // Step3 . Move
+            pathGenerator.NodeList_World.Add(pathGenerator.NodeList[i]);
+            pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList_World[i],m_rotate);
 
             //===================================================================================================================================================
             //  World Coordinate Transformation: Angle
@@ -517,14 +660,8 @@ namespace CurvedPathGenertator {
             //  닫힌 경로일 경우, 새로 추가된 앵글의 좌표를 월드 좌표로 변환
             //===================================================================================================================================================
             if (pathGenerator.isClosed) {
-                pathGenerator.AngleList_World.Add(pathGenerator.AngleList[i]);                                  // Local -> World transform :
-                pathGenerator.AngleList_World[i] = m_rotate.MultiplyPoint3x4(pathGenerator.AngleList_World[i]); // Step1 . Rotate
-                pathGenerator.AngleList_World[i] = new Vector3(                                                 // Step2 . Scale-up
-                    pathGenerator.AngleList_World[i].x * pathGenerator.transform.lossyScale.x,
-                    pathGenerator.AngleList_World[i].y * pathGenerator.transform.lossyScale.y,
-                    pathGenerator.AngleList_World[i].z * pathGenerator.transform.lossyScale.z
-                );
-                pathGenerator.AngleList_World[i] += pathGenerator.transform.position;                           // Step3 . Move
+                pathGenerator.AngleList_World.Add(pathGenerator.AngleList[i]);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList_World[i], m_rotate);
             }
 
             EditNodeButtonClick(pathGenerator.NodeList.Count - 1);          // For created nodes, open the Edit window immediately                                     
@@ -669,6 +806,13 @@ namespace CurvedPathGenertator {
         }
         #endregion
 
+        //=======================================================================================================================================================
+        //  Calculate rotate 
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        //  Set the x value of all nodes and angles to 0
+        //  모든 노드와 앵글의 x 값을 0으로 설정
+        //=======================================================================================================================================================
+
         #region PathGenerator_InspectorUI_Functions_SetXto0
         //=======================================================================================================================================================
         //  Set X value to 0 method
@@ -678,14 +822,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void Xto0ButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(0, pathGenerator.NodeList[i].y, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(0, pathGenerator.AngleList[i].y, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -698,14 +848,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void Yto0ButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, 0, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, 0, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -718,14 +874,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void Zto0ButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, pathGenerator.NodeList[i].y, 0);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, pathGenerator.AngleList[i].y, 0);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -738,6 +900,8 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void XtoAVGButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null || (pathGenerator.NodeList.Count == 0 && pathGenerator.AngleList.Count == 0))
                 return;
@@ -753,11 +917,14 @@ namespace CurvedPathGenertator {
                 avg += pathGenerator.AngleList[i].x;
             avg /= ( pathGenerator.NodeList.Count + pathGenerator.AngleList.Count );
 
-
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(avg, pathGenerator.NodeList[i].y, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(avg, pathGenerator.AngleList[i].y, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -770,6 +937,8 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void YtoAVGButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null || ( pathGenerator.NodeList.Count == 0 && pathGenerator.AngleList.Count == 0 ))
                 return;
@@ -785,11 +954,14 @@ namespace CurvedPathGenertator {
                 avg += pathGenerator.AngleList[i].y;
             avg /= ( pathGenerator.NodeList.Count + pathGenerator.AngleList.Count );
 
-
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, avg, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, avg, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -802,6 +974,8 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void ZtoAVGButtonClick() {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null || ( pathGenerator.NodeList.Count == 0 && pathGenerator.AngleList.Count == 0 ))
                 return;
@@ -817,11 +991,14 @@ namespace CurvedPathGenertator {
                 avg += pathGenerator.AngleList[i].z;
             avg /= ( pathGenerator.NodeList.Count + pathGenerator.AngleList.Count );
 
-
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, pathGenerator.NodeList[i].y, avg);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, pathGenerator.AngleList[i].y, avg);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -834,14 +1011,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void XtoSomethingButtonClick(float value) {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(value, pathGenerator.NodeList[i].y, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(value, pathGenerator.AngleList[i].y, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -854,14 +1037,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void YtoSomethingButtonClick(float value) {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, value, pathGenerator.NodeList[i].z);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, value, pathGenerator.AngleList[i].z);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -874,14 +1063,20 @@ namespace CurvedPathGenertator {
         //=======================================================================================================================================================
         private void ZtoSomethingButtonClick(float value) {
             PathGenerator pathGenerator = target as PathGenerator;
+            Quaternion rotation = pathGenerator.transform.rotation;
+            Matrix4x4 m_rotate = Matrix4x4.Rotate(rotation);
             Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
             if (pathGenerator.NodeList == null || pathGenerator.AngleList == null)
                 return;
 
-            for (int i = 0; i < pathGenerator.NodeList.Count; i++)
+            for (int i = 0; i < pathGenerator.NodeList.Count; i++) {
                 pathGenerator.NodeList[i] = new Vector3(pathGenerator.NodeList[i].x, pathGenerator.NodeList[i].y, value);
-            for (int i = 0; i < pathGenerator.AngleList.Count; i++)
+                pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList[i], m_rotate);
+            }
+            for (int i = 0; i < pathGenerator.AngleList.Count; i++) {
                 pathGenerator.AngleList[i] = new Vector3(pathGenerator.AngleList[i].x, pathGenerator.AngleList[i].y, value);
+                pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList[i], m_rotate);
+            }
         }
         #endregion
 
@@ -923,25 +1118,13 @@ namespace CurvedPathGenertator {
                 pathGenerator.NodeList_World = new List<Vector3>();
                 for (int i = 0; i < NodeList.Count; i++) {
                     pathGenerator.NodeList_World.Add(NodeList[i]);
-                    pathGenerator.NodeList_World[i] = m_rotate.MultiplyPoint3x4(pathGenerator.NodeList_World[i]);
-                    pathGenerator.NodeList_World[i] = new Vector3(
-                        pathGenerator.NodeList_World[i].x * pathGenerator.transform.lossyScale.x,
-                        pathGenerator.NodeList_World[i].y * pathGenerator.transform.lossyScale.y,
-                        pathGenerator.NodeList_World[i].z * pathGenerator.transform.lossyScale.z
-                    );
-                    pathGenerator.NodeList_World[i] += pathGenerator.transform.position;
+                    pathGenerator.NodeList_World[i] = TransformPoint(pathGenerator.NodeList_World[i], m_rotate);
                 }
 
                 pathGenerator.AngleList_World = new List<Vector3>();
                 for (int i = 0; i < AngleList.Count; i++) {
                     pathGenerator.AngleList_World.Add(AngleList[i]);
-                    pathGenerator.AngleList_World[i] = m_rotate.MultiplyPoint3x4(pathGenerator.AngleList_World[i]);
-                    pathGenerator.AngleList_World[i] = new Vector3(
-                        pathGenerator.AngleList_World[i].x * pathGenerator.transform.lossyScale.x,
-                        pathGenerator.AngleList_World[i].y * pathGenerator.transform.lossyScale.y,
-                        pathGenerator.AngleList_World[i].z * pathGenerator.transform.lossyScale.z
-                    );
-                    pathGenerator.AngleList_World[i] += pathGenerator.transform.position;
+                    pathGenerator.AngleList_World[i] = TransformPoint(pathGenerator.AngleList_World[i], m_rotate);
                 }
             }
 
@@ -1036,20 +1219,17 @@ namespace CurvedPathGenertator {
             // 베지어 커브 계산
             //===================================================================================================================================================
             try {
+                List<Vector3> pathList = new List<Vector3>();
+                pathList.Add(pathGenerator.NodeList_World[0]);
                 for (int i = 0; i < Count; i++) {
                     if (pathGenerator.EditMode == 1 && 
                         ((nodeListEditIndex == -1 && angleListEditIndex == -1) || nodeListEditIndex == i)) {
                         pathGenerator.NodeList_World[i] = Handles.PositionHandle(pathGenerator.NodeList_World[i],
                                                               pathGenerator.transform.localRotation);
-                        pathGenerator.NodeList[i] = pathGenerator.NodeList_World[i] - pathGenerator.transform.position;
-                        pathGenerator.NodeList[i] = m_reverse.MultiplyPoint3x4(pathGenerator.NodeList[i]);
-                        pathGenerator.NodeList[i] = new Vector3(
-                            pathGenerator.NodeList[i].x / pathGenerator.transform.lossyScale.x,
-                            pathGenerator.NodeList[i].y / pathGenerator.transform.lossyScale.y,
-                            pathGenerator.NodeList[i].z / pathGenerator.transform.lossyScale.z
-                        );
+                        pathGenerator.NodeList[i] = ReverseTransformPoint(pathGenerator.NodeList_World[i], m_reverse);
                     }
 
+                    
                     try {
                         if ( (!pathGenerator.isClosed && ( i < Count-1) && AngleList[i] != null) || 
                                 (pathGenerator.isClosed && AngleList[i] != null )) {
@@ -1057,42 +1237,36 @@ namespace CurvedPathGenertator {
                                  ( ( nodeListEditIndex == -1 && angleListEditIndex == -1 ) || angleListEditIndex == i )) {
                                 pathGenerator.AngleList_World[i] = Handles.PositionHandle(pathGenerator.AngleList_World[i],
                                                                        pathGenerator.transform.localRotation);
-                                pathGenerator.AngleList[i] = pathGenerator.AngleList_World[i] - pathGenerator.transform.position;
-                                pathGenerator.AngleList[i] = m_reverse.MultiplyPoint3x4(pathGenerator.AngleList[i]);
-                                pathGenerator.AngleList[i] = new Vector3(
-                                    pathGenerator.AngleList[i].x / pathGenerator.transform.lossyScale.x,
-                                    pathGenerator.AngleList[i].y / pathGenerator.transform.lossyScale.y,
-                                    pathGenerator.AngleList[i].z / pathGenerator.transform.lossyScale.z
-                                );
+                                pathGenerator.AngleList[i] = ReverseTransformPoint(pathGenerator.AngleList_World[i], m_reverse);
                             }
 
                             Vector3 startPoint = pathGenerator.NodeList_World[i];
                             Vector3 middlePoint = pathGenerator.AngleList_World[i];
-                            Vector3 endPoint = (i == Count - 1) ? 
-                                        pathGenerator.NodeList_World[0] : pathGenerator.NodeList_World[i + 1];
+                            Vector3 endPoint = (i == Count - 1) ? pathGenerator.NodeList_World[0] : pathGenerator.NodeList_World[i + 1];
 
                             Handles.color = GuidLineColor_1;
                             Handles.DrawDottedLine(startPoint, middlePoint,2f);
                             Handles.color = GuidLineColor_2;
                             Handles.DrawDottedLine(middlePoint, endPoint,2f);
 
-                            List<Vector3> test = new List<Vector3>();
-                            for (int j = 0; j < Density; j++) {
+                            for (int j = 1; j <= Density; j++) {
                                 float t = (float)j / Density;
                                 Vector3 curve = (1f - t) * (1f - t) * startPoint +
                                                2 * (1f - t) * t * middlePoint +
                                                t * t * endPoint;
-                                test.Add(curve);
+                                pathList.Add(curve);
 
                             }
-                            test.Add(endPoint);
-                            Handles.color = GuidLineColor_3;
-                            Handles.DrawPolyLine(test.ToArray<Vector3>());
                         }
                     } catch (System.Exception e) {
                         e.ToString();
                     }
-                } 
+                }
+
+                Handles.color = GuidLineColor_3;
+                Handles.DrawPolyLine(pathList.ToArray<Vector3>());
+                if (CreateMeshFlag)
+                    CreateMesh(pathList);
             } catch (System.Exception e) {
                 e.ToString();
             }
@@ -1441,6 +1615,70 @@ namespace CurvedPathGenertator {
             }
         }
 
+        #endregion
+
+
+        #region PathGenerator_CreateMeshFunction
+        private void CreateMesh(List<Vector3> pathVec) {
+            if (!CreateMeshFlag) return;
+            PathGenerator pathGenerator = target as PathGenerator;
+            MeshRenderer renderer = pathGenerator.transform.GetComponent<MeshRenderer>();
+
+            int verNum = 2 * pathVec.Count;
+            int triNum = 6 * ( pathVec.Count -1 );
+            Vector3[] vertices = new Vector3[verNum];
+            int[] triangles = new int[triNum];
+            Vector2[] uvs = new Vector2[verNum];
+
+            float MaxLength = 0, currentLength = 0;
+            for (int i = 1; i < pathVec.Count; i++)
+                MaxLength += ( pathVec[i] - pathVec[i - 1] ).magnitude;
+
+            for (int i = 0; i < pathVec.Count - 1; i++) {
+                Vector3 dir = ( pathVec[i + 1] - pathVec[i] ).normalized;
+                Vector3 new_dir1 = new Vector3(dir.z, 0, -dir.x);
+                Vector3 new_dir2 = new Vector3(-dir.z, 0, dir.x);
+
+                if (i == 0) {
+                    vertices[2 * i] = pathVec[i] + ( new_dir1 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position; ;
+                    vertices[2 * i + 1] = pathVec[i] + ( new_dir2 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position;
+                    uvs[2 * i] = new Vector2(0.5f, -0.5f);
+                    uvs[2 * i + 1] = new Vector2(-0.5f, -0.5f);
+                } else if (i > 0) {
+                    currentLength += ( pathVec[i] - pathVec[i - 1] ).magnitude;
+
+                    vertices[2 * i] = pathVec[i] + ( new_dir1 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position; ;
+                    vertices[2 * i + 1] = pathVec[i] + ( new_dir2 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position;
+                    uvs[2 * i] = new Vector2(0.5f, -0.5f + ( currentLength ) / ( MaxLength ));
+                    uvs[2 * i + 1] = new Vector2(-0.5f, -0.5f + ( currentLength ) / ( MaxLength ));
+                }
+
+                if (i == pathVec.Count - 2) {
+                    vertices[2 * i + 2] = pathVec[i + 1] + ( new_dir1 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position;
+                    vertices[2 * i + 3] = pathVec[i + 1] + ( new_dir2 * ( LineMehsWidth / 2 ) ) - pathGenerator.transform.position;
+                    uvs[2 * i + 2] = new Vector2(0.5f, 0.5f);
+                    uvs[2 * i + 3] = new Vector2(-0.5f, 0.5f);
+                }
+            }
+            for(int i = 0; i < pathVec.Count - 1; i ++) {
+                triangles[6 * i] = 2 * i + 3;
+                triangles[6 * i + 1] = 2 * i + 2;
+                triangles[6 * i + 2] = 2 * i;
+                triangles[6 * i + 3] = 2 * i + 3;
+                triangles[6 * i + 4] = 2 * i;
+                triangles[6 * i + 5] = 2 * i + 1;
+            }
+
+            MeshFilter PathMesh = pathGenerator.transform.GetComponent<MeshFilter>();
+            Mesh newMesh = new Mesh();
+            newMesh.vertices = vertices;
+            newMesh.triangles = triangles;
+            newMesh.uv = uvs;
+            newMesh.RecalculateBounds();
+            newMesh.RecalculateNormals();
+            PathMesh.mesh = newMesh;
+            //CreateMeshFlag = false;
+        }
         #endregion
     }
 

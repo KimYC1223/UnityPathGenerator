@@ -102,11 +102,11 @@ namespace CurvedPathGenertator {
             //===========================================================================================
             if (Distance < distanceThreshold) {
 
+                //=======================================================================================
+                // If the end of the path list is not reached, set the next path by increase path Index
+                // path 리스트의 끝에 도달하지 못했다면, path Index ++ 를 통해 next path 설정
+                //=======================================================================================
                 if (pathIndex + 1 < path.PathList.Count) {
-                    //=======================================================================================
-                    // If the end of the path list is not reached, set the next path by increase path Index
-                    // path 리스트의 끝에 도달하지 못했다면, path Index ++ 를 통해 next path 설정
-                    //=======================================================================================
                     nextPath = path.PathList[++pathIndex];
                 } else {
                     //===================================================================================
@@ -127,10 +127,10 @@ namespace CurvedPathGenertator {
                             nextPath = path.PathList[0];
                             pathIndex = 0;
 
-                            //==============================================================================
-                            // If object move once, Stop move and if endEvent isn't null, run method.
-                            // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
-                            //==============================================================================
+                        //==============================================================================
+                        // If object move once, Stop move and if endEvent isn't null, run method.
+                        // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
+                        //==============================================================================
                         } else {
                             StopFollow();
                             if (endEvent != null) {

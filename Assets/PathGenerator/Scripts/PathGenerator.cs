@@ -18,12 +18,16 @@ using static UnityEngine.GraphicsBuffer;
 //=========================================================================================================================
 
 namespace CurvedPathGenertator {
+
+    [RequireComponent(typeof(MeshFilter))]
+    [RequireComponent(typeof(MeshRenderer))]
+
     [System.Serializable]
     public class PathGenerator : MonoBehaviour {
         public bool isClosed = false;           // is this path closed ?
         public bool isLivePath = false;         // is calculate the path in runtime ?
         public bool isShowingIcons = true;      // is showing icons ?
-        public int PathDensity = 30;            // Density of guide objects between Nodes
+        public int PathDensity = 5;            // Density of guide objects between Nodes
 
         public int EditMode = 0;   // (Editor) is individaul control mode?
 

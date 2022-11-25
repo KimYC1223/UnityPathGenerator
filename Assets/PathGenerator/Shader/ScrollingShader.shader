@@ -22,16 +22,17 @@ Shader "PathGenerator/ScrollingArrow"
 {
     Properties
     {
-        _MainTex ( "Texture", 2D ) = "white" {}
-        _ArrowTex ( "Texture", 2D ) = "white" {}
-        _Fill ( "Fill", Range ( 0.0,1.0 ) ) = 0.5
-        _Speed ( "Speed", float ) = 5
+        _MainTex ( "Main Texture", 2D ) = "white" {}
+        [IntRange] _Speed ( "Speed", Range ( -100, 100 ) ) = 30
+        _Alpha ("Alpha", Range(0,1)) = 1
     }
 
         SubShader
         {
-            Tags { "RenderType" = "Opaque" }
-            LOD 100
+            Tags { "RenderType" = "Transparent" }
+            ZWrite Off
+            Cull Off
+            Blend SrcAlpha OneMinusSrcAlpha
 
             Pass
             {
@@ -55,6 +56,7 @@ Shader "PathGenerator/ScrollingArrow"
 
                 sampler2D _MainTex;
                 float4 _MainTex_ST;
+                float _Alpha;
                 float _Fill;
                 float _Speed;
 
@@ -69,13 +71,14 @@ Shader "PathGenerator/ScrollingArrow"
                 fixed4 frag ( v2f i ) : SV_Target
                 {
                     // get scroll value
-                    float2 scroll = float2(0, -1 + (frac ( _Time.x * _Speed ) * 2));
+                    float2 scroll = float2(0, (frac ( _Time.x * _Speed )));
 
+                    float4 _AlphaColor = float4 (1, 1, 1, _Alpha);
                     // sample texture
-                    fixed4 col = tex2D ( _MainTex, i.uv - scroll );
+                    fixed4 col = tex2D ( _MainTex, (i.uv - scroll) ) * _AlphaColor;
 
-                    // discard if uv.y is below below cut value
-                    clip ( step ( i.uv.y, _Fill* _MainTex_ST.y ) - 0.1 );
+                    //// discard if uv.y is below below cut value
+                    clip ( step ( i.uv.y, _MainTex_ST.y ) - 0.1 );
 
                     return col;
 

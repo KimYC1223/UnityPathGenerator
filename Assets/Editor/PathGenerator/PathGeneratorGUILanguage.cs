@@ -218,33 +218,33 @@ namespace CurvedPathGenertator {
 
             key_text = "PG_TotalControl_SetZeroToX";
             ENG_TEXT.Add(key_text, "X to 0");
-            KOR_TEXT.Add(key_text, "X값을 0으로");
+            KOR_TEXT.Add(key_text, "X값을\n0으로");
             JAP_TEXT.Add(key_text, "X値を0に");
 
             key_text = "PG_TotalControl_SetZeroToY";
-            ENG_TEXT.Add(key_text, "Y to 0;");
-            KOR_TEXT.Add(key_text, "Y값을 0으로");
+            ENG_TEXT.Add(key_text, "Y to 0");
+            KOR_TEXT.Add(key_text, "Y값을\n0으로");
             JAP_TEXT.Add(key_text, "Y値を0に");
 
             key_text = "PG_TotalControl_SetZeroToZ";
             ENG_TEXT.Add(key_text, "Z to 0");
-            KOR_TEXT.Add(key_text, "Z값을 0으로");
+            KOR_TEXT.Add(key_text, "Z값을\n0으로");
             JAP_TEXT.Add(key_text, "Z値を0に");
 
             key_text = "PG_TotalControl_SetAvgToX";
-            ENG_TEXT.Add(key_text, "X equalization");
-            KOR_TEXT.Add(key_text, "X값 평준화");
-            JAP_TEXT.Add(key_text, "X値平準化");
+            ENG_TEXT.Add(key_text, "X\nequalization");
+            KOR_TEXT.Add(key_text, "X값\n평준화");
+            JAP_TEXT.Add(key_text, "X値\n平準化");
 
             key_text = "PG_TotalControl_SetAvgToY";
-            ENG_TEXT.Add(key_text, "Y값 equalization");
-            KOR_TEXT.Add(key_text, "Y값 평준화");
-            JAP_TEXT.Add(key_text, "Y値平準化");
+            ENG_TEXT.Add(key_text, "Y\nequalization");
+            KOR_TEXT.Add(key_text, "Y값\n평준화");
+            JAP_TEXT.Add(key_text, "Y値\n平準化");
 
             key_text = "PG_TotalControl_SetAvgToZ";
-            ENG_TEXT.Add(key_text, "Z equalization");
-            KOR_TEXT.Add(key_text, "Z값 평준화");
-            JAP_TEXT.Add(key_text, "Z値平準化");
+            ENG_TEXT.Add(key_text, "Z\nequalization");
+            KOR_TEXT.Add(key_text, "Z값\n평준화");
+            JAP_TEXT.Add(key_text, "Z値\n平準化");
 
             key_text = "PG_TotalControl_SpecificValue";
             ENG_TEXT.Add(key_text, "Specific value");
@@ -252,19 +252,19 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "特定の値");
 
             key_text = "PG_TotalControl_SetSpecificToX";
-            ENG_TEXT.Add(key_text, "X to a specific value");
-            KOR_TEXT.Add(key_text, "X값을 특정값으로");
-            JAP_TEXT.Add(key_text, "Xから特定の値");
+            ENG_TEXT.Add(key_text, "X to ...");
+            KOR_TEXT.Add(key_text, "X값을 ...");
+            JAP_TEXT.Add(key_text, "X値をこの ...");
 
             key_text = "PG_TotalControl_SetSpecificToY";
-            ENG_TEXT.Add(key_text, "Y to a specific value");
-            KOR_TEXT.Add(key_text, "Y값을 특정값으로");
-            JAP_TEXT.Add(key_text, "Yから特定の値");
+            ENG_TEXT.Add(key_text, "Y to ...");
+            KOR_TEXT.Add(key_text, "Y값을 ...");
+            JAP_TEXT.Add(key_text, "Y値をこの ...");
 
             key_text = "PG_TotalControl_SetSpecificToZ";
-            ENG_TEXT.Add(key_text, "Z to a specific value");
-            KOR_TEXT.Add(key_text, "Z값을 특정값으로");
-            JAP_TEXT.Add(key_text, "Zから特定の値");
+            ENG_TEXT.Add(key_text, "Z to ...");
+            KOR_TEXT.Add(key_text, "Z값을 ...");
+            JAP_TEXT.Add(key_text, "Z値をこの ...");
 
             key_text = "PG_H1_Rendering";
             ENG_TEXT.Add(key_text, "Rendering");
