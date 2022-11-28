@@ -39,6 +39,7 @@ namespace CurvedPathGenertator {
         public float LineOpacity = 0.7f;
         public float LineSpeed = 10f;
         public float LineTiling = 20f;
+        public float LineFilling = 1f;
         public int LineRenderQueue = 3000;
         public Texture2D LineTexture;
 

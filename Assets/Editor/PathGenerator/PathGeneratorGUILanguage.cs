@@ -22,8 +22,6 @@ namespace CurvedPathGenertator {
         static Dictionary<string, string> KOR_TEXT;
         static Dictionary<string, string> JAP_TEXT;
 
-        
-
         static public void InitLocalization() {
             string key_text;
             //if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
@@ -86,10 +84,10 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
             JAP_TEXT.Add(key_text, "ベイクドパス");
 
-            key_text = "PG_PathTypeChangeButton_Path";
-            ENG_TEXT.Add(key_text, "Update path in runtime");
-            KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
-            JAP_TEXT.Add(key_text, "ベイクドパス");
+            key_text = "PG_H1_EditorSetting";
+            ENG_TEXT.Add(key_text, "Editor setting");
+            KOR_TEXT.Add(key_text, "에디터 관련");
+            JAP_TEXT.Add(key_text, "エディタ関連");
 
             key_text = "PG_PathTypeChangeButton_isLivePathWarning";
             ENG_TEXT.Add(key_text, "Updates the path every frame. Therefore, even if the node or angle changes position at runtime, it is applied to the path immediately. However, the amount of calculation may increase.");
@@ -311,10 +309,15 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "불투명도");
             JAP_TEXT.Add(key_text, "不透明度");
 
-            key_text = "PG_Rendering_Tilling";
+            key_text = "PG_Rendering_Tiling";
             ENG_TEXT.Add(key_text, "Tiling");
             KOR_TEXT.Add(key_text, "타일링");
             JAP_TEXT.Add(key_text, "タイリング");
+
+            key_text = "PG_Rendering_Filling";
+            ENG_TEXT.Add(key_text, "Filling");
+            KOR_TEXT.Add(key_text, "채우기");
+            JAP_TEXT.Add(key_text, "塗りつぶす");
 
             key_text = "PG_Rendering_RenderQueue";
             ENG_TEXT.Add(key_text, "Render queue");

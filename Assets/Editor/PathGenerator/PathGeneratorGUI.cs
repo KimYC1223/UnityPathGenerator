@@ -567,9 +567,16 @@ namespace CurvedPathGenertator {
             float oldLineSpeed = pathGenerator.LineSpeed;
             float oldLineOpacity = pathGenerator.LineOpacity;
             float oldLineTiling = pathGenerator.LineTiling;
+            float oldLineFilling = pathGenerator.LineFilling;
             int oldLineRenderQueue = pathGenerator.LineRenderQueue;
             bool oldCreateMeshFlag = pathGenerator.CreateMeshFlag;
 
+            //===================================================================================================================================================
+            //  Toggle button of create mesh
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            //  Toggle button to decide whether or not to create a mesh
+            //  메쉬를 만들지 말지 결정하는 토글 버튼
+            //===================================================================================================================================================
             pathGenerator.CreateMeshFlag = 
                 GUILayout.Toggle(pathGenerator.CreateMeshFlag,PathGeneratorGUILanguage.GetLocalText("PG_Rendering_isGeneratePathMesh"));
             GUILayout.Space(10);
@@ -577,7 +584,18 @@ namespace CurvedPathGenertator {
             if (oldCreateMeshFlag && !pathGenerator.CreateMeshFlag)
                 DeletePathMesh();
 
-            if(pathGenerator.CreateMeshFlag) {
+            //===================================================================================================================================================
+            //  Texture setting GUI
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            //  GUI to set path mesh texture
+            //  경로 메쉬 텍스처를 설정할 수 있는 GUI
+            //===================================================================================================================================================
+            if (pathGenerator.CreateMeshFlag) {
+
+                //===============================================================================================================================================
+                //  Path mesh texture
+                //  경로 메쉬 텍스처
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
                 pathGenerator.LineTexture = TextureField(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_LineTexture"), pathGenerator.LineTexture);
                 GUILayout.Space(20);
@@ -586,26 +604,55 @@ namespace CurvedPathGenertator {
                 GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_MaterialInfo"), BoldText);
                 GUILayout.Space(5);
 
+                //===============================================================================================================================================
+                //  Width of path mesh
+                //  경로 메쉬의 너비
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_LineMeshWidth"), GUILayout.Width(120f));
                 pathGenerator.LineMehsWidth = EditorGUILayout.Slider(pathGenerator.LineMehsWidth, 0.1f, 5f);
                 GUILayout.EndHorizontal();
 
+                //===============================================================================================================================================
+                //  Scroll speed of path mesh texture
+                //  경로 메쉬 텍스처의 스크롤 속도
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_ScrollSpeed"), GUILayout.Width(120f));
                 pathGenerator.LineSpeed = EditorGUILayout.Slider(pathGenerator.LineSpeed, -100, 100);
                 GUILayout.EndHorizontal();
 
+                //===============================================================================================================================================
+                //  Opacity of path mesh
+                //  경로 메쉬의 불투명도
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_Opacity"), GUILayout.Width(120f));
                 pathGenerator.LineOpacity = EditorGUILayout.Slider(pathGenerator.LineOpacity, 0, 1f);
                 GUILayout.EndHorizontal();
 
+                //===============================================================================================================================================
+                //  Y-axis tiling of the path mesh texture
+                //  경로 메쉬 텍스처의 Y축 타일링
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_Tilling"), GUILayout.Width(120f));
+                GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_Tiling"), GUILayout.Width(120f));
                 pathGenerator.LineTiling = EditorGUILayout.Slider(pathGenerator.LineTiling, 0.1f, 100f);
                 GUILayout.EndHorizontal();
 
+                //===============================================================================================================================================
+                //  Fill percentage of the path mesh texture
+                //  경로 메쉬 텍스처의 채우기 퍼센트
+                //===============================================================================================================================================
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_Filling"), GUILayout.Width(120f));
+                pathGenerator.LineFilling = EditorGUILayout.Slider(pathGenerator.LineFilling, 0f, 1f);
+                GUILayout.EndHorizontal();
+
+                //===============================================================================================================================================
+                //  Set render priority (The default value is 3000 (Transparent) )
+                //  렌더 우선 순위 설정 (기본 값은 3000입니다 (트랜스파렌트) )
+                //===============================================================================================================================================
                 GUILayout.BeginHorizontal();
                 GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Rendering_RenderQueue"), GUILayout.Width(120f));
                 pathGenerator.LineRenderQueue = EditorGUILayout.IntSlider(pathGenerator.LineRenderQueue, 0, 5000);
@@ -618,9 +665,15 @@ namespace CurvedPathGenertator {
                 GUILayout.EndHorizontal();
                 GUILayout.Space(5);
 
+                //===============================================================================================================================================
+                //  Create Material
+                //-----------------------------------------------------------------------------------------------------------------------------------------------
+                //  When the value changes, create a new material
+                //  값이 변경되면, material을 새로 만듦
+                //===============================================================================================================================================
                 if (oldLineTexture != pathGenerator.LineTexture || oldLineSpeed != pathGenerator.LineSpeed ||
                     oldLineOpacity != pathGenerator.LineOpacity || oldLineTiling != pathGenerator.LineTiling ||
-                    oldLineRenderQueue != pathGenerator.LineRenderQueue) {
+                    oldLineFilling != pathGenerator.LineFilling || oldLineRenderQueue != pathGenerator.LineRenderQueue) {
                     SetMaterail();
                 }
             }
@@ -1184,6 +1237,10 @@ namespace CurvedPathGenertator {
 
             int Count = NodeList.Count;
 
+            //===================================================================================================================================================
+            // When the transform of the target is changed or the values of nodes and angles are changed, the world coordinates are newly calculated.
+            // 타겟의 transform이 변경되거나 node, angle값이 변경되면 World좌표를 새로 계산
+            //===================================================================================================================================================
             if (old_Position != pathGenerator.transform.localPosition ||
                 old_Rotation != pathGenerator.transform.localRotation ||
                 old_Scale    != pathGenerator.transform.localScale ||
@@ -1270,6 +1327,10 @@ namespace CurvedPathGenertator {
             }
 
 
+            //===================================================================================================================================================
+            // Control the entire points (nodes, angles) with one handle
+            // 포인트 (node, angle) 전체를 하나의 핸들로 제어
+            //===================================================================================================================================================
             if ( pathGenerator.EditMode == 2 && ( pathGenerator.NodeList_World != null || pathGenerator.AngleList_World != null ) &&
                  ( pathGenerator.NodeList_World.Count > 0 || pathGenerator.AngleList_World.Count > 0) ) {
                 Vector3 centerPos = Vector3.zero;
@@ -1278,9 +1339,17 @@ namespace CurvedPathGenertator {
                 for (int i = 0; i < pathGenerator.AngleList_World.Count; i++)
                     centerPos += pathGenerator.AngleList_World[i];
 
-                
+                //===============================================================================================================================================
+                // Calculate midpoint of all points (nodes, angles)
+                // 모든 좌표의 중점 계산
+                //===============================================================================================================================================
                 centerPos /= ((int)pathGenerator.NodeList_World.Count + (int)pathGenerator.AngleList_World.Count);
 
+
+                //===============================================================================================================================================
+                // Control with one handle, move the entire points (nodes, angles)
+                // 하나의 핸들로 제어하고, 움직인 거리만큼 전체 좌표를 이동
+                //===============================================================================================================================================
                 Vector3 new_centerPos = Handles.PositionHandle(centerPos, pathGenerator.transform.localRotation);
                 Vector3 offset = new_centerPos - centerPos;
                 for (int i = 0; i < pathGenerator.NodeList_World.Count; i++) {
@@ -1302,6 +1371,11 @@ namespace CurvedPathGenertator {
                 List<Vector3> pathList = new List<Vector3>();
                 pathList.Add(pathGenerator.NodeList_World[0]);
                 for (int i = 0; i < Count; i++) {
+
+                    //===========================================================================================================================================
+                    // Draw handles controlling nodes
+                    // Node를 제어하는 핸들을 그리기
+                    //===========================================================================================================================================
                     if (pathGenerator.EditMode == 1 && 
                         ((nodeListEditIndex == -1 && angleListEditIndex == -1) || nodeListEditIndex == i)) {
                         pathGenerator.NodeList_World[i] = Handles.PositionHandle(pathGenerator.NodeList_World[i],
@@ -1309,8 +1383,11 @@ namespace CurvedPathGenertator {
                         pathGenerator.NodeList[i] = ReverseTransformPoint(pathGenerator.NodeList_World[i], m_reverse);
                     }
 
-                    
                     try {
+                        //=======================================================================================================================================
+                        // Draw handles controlling angles
+                        // Angle를 제어하는 핸들을 그리기
+                        //=======================================================================================================================================
                         if ( (!pathGenerator.isClosed && ( i < Count-1) && AngleList[i] != null) || 
                                 (pathGenerator.isClosed && AngleList[i] != null )) {
                             if (pathGenerator.EditMode == 1 &&
@@ -1320,6 +1397,10 @@ namespace CurvedPathGenertator {
                                 pathGenerator.AngleList[i] = ReverseTransformPoint(pathGenerator.AngleList_World[i], m_reverse);
                             }
 
+                            //===================================================================================================================================
+                            // Set start point, middle point, end point
+                            // 시작점, 중간점, 끝점 설정
+                            //===================================================================================================================================
                             Vector3 startPoint = pathGenerator.NodeList_World[i];
                             Vector3 middlePoint = pathGenerator.AngleList_World[i];
                             Vector3 endPoint = (i == Count - 1) ? pathGenerator.NodeList_World[0] : pathGenerator.NodeList_World[i + 1];
@@ -1329,13 +1410,16 @@ namespace CurvedPathGenertator {
                             Handles.color = GuidLineColor_2;
                             Handles.DrawDottedLine(middlePoint, endPoint,2f);
 
+                            //===================================================================================================================================
+                            // Create curve
+                            // 곡선 생성
+                            //===================================================================================================================================
                             for (int j = 1; j <= Density; j++) {
                                 float t = (float)j / Density;
                                 Vector3 curve = (1f - t) * (1f - t) * startPoint +
                                                2 * (1f - t) * t * middlePoint +
                                                t * t * endPoint;
                                 pathList.Add(curve);
-
                             }
                         }
                     } catch (System.Exception e) {
@@ -1345,14 +1429,26 @@ namespace CurvedPathGenertator {
 
                 Handles.color = GuidLineColor_3;
                 Handles.DrawPolyLine(pathList.ToArray<Vector3>());
+                //===============================================================================================================================================
+                // Create a path mesh based on a curve
+                // 곡선을 기반으로한 path mesh 생성
+                //===============================================================================================================================================
                 if (pathGenerator.CreateMeshFlag)
                     CreateMesh(pathList);
             } catch (System.Exception e) {
                 e.ToString();
             }
 
+            //===================================================================================================================================================
+            // Handling if index is shown
+            // 인덱스를 보여줄 경우 처리
+            //===================================================================================================================================================
+            if (isShowIndex) {
 
-            if(isShowIndex) {
+                //===============================================================================================================================================
+                // Processing when showing node's index
+                // Node의 인덱스를 보여줄 경우 처리
+                //===============================================================================================================================================
                 if (pathGenerator.NodeList_World != null && pathGenerator.NodeList_World.Count > 0) {
                     for (int i = 0; i < pathGenerator.NodeList_World.Count; i++) {
                         if (nodeListEditIndex == i) continue;
@@ -1360,6 +1456,10 @@ namespace CurvedPathGenertator {
                     }
                 }
 
+                //===============================================================================================================================================
+                // Processing when showing angle's index (In the case of a closed path, the last and the first are connected)
+                // Angle의 인덱스를 보여줄 경우 처리 (닫힌 경로의 경우, 마지막과 처음을 이어줌)
+                //===============================================================================================================================================
                 if (pathGenerator.AngleList_World != null && pathGenerator.AngleList_World.Count > 0) {
                     for (int i = 0; i < pathGenerator.AngleList_World.Count; i++) {
                         if (angleListEditIndex == i) continue;
@@ -1370,6 +1470,10 @@ namespace CurvedPathGenertator {
                 }
             }
 
+            //===================================================================================================================================================
+            // When the user clicks on the node index
+            // 사용자가 node 인덱스를 눌렀을 경우
+            //===================================================================================================================================================
             if (nodeListEditIndex != -1) {
                 angleListEditIndex = -1;
                 if (pathGenerator.NodeList_World != null && pathGenerator.NodeList_World.Count > 0 &&
@@ -1380,6 +1484,10 @@ namespace CurvedPathGenertator {
                                                 Color.green);
             }
 
+            //===================================================================================================================================================
+            // When the user clicks on the angle index
+            // 사용자가 angle 인덱스를 눌렀을 경우
+            //===================================================================================================================================================
             if (angleListEditIndex != -1) {
                 nodeListEditIndex = -1;
                 if (pathGenerator.AngleList_World != null && pathGenerator.AngleList_World.Count > 0 &&
@@ -1393,6 +1501,11 @@ namespace CurvedPathGenertator {
                                                 Color.yellow);
             }
 
+
+            //===================================================================================================================================================
+            // Setting the GUI to be displayed in the editor scene window
+            // 에디터 Scene 창에 띄울 GUI 설정
+            //===================================================================================================================================================
             if (isShowEditorSetting)
                 DrawEditorSettingPanel(new Rect(10, 10, 350, 220));
             else
@@ -1809,6 +1922,7 @@ namespace CurvedPathGenertator {
                 newMat.SetTextureScale("_MainTex", new Vector2(1f, pathGenerator.LineTiling));
                 newMat.SetFloat("_Speed", pathGenerator.LineSpeed);
                 newMat.SetFloat("_Alpha", pathGenerator.LineOpacity);
+                newMat.SetFloat("_Fill", pathGenerator.LineFilling);
                 newMat.renderQueue = pathGenerator.LineRenderQueue;
 
                 renderer.material = newMat;
