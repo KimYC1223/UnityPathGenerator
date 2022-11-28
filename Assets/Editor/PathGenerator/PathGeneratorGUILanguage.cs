@@ -66,10 +66,10 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "닫기");
             JAP_TEXT.Add(key_text, "閉じる");
 
-            key_text = "PG_H1_EditorSetting";
-            ENG_TEXT.Add(key_text, "Editor setting");
-            KOR_TEXT.Add(key_text, "에디터 관련");
-            JAP_TEXT.Add(key_text, "エディタ関連");
+            key_text = "PG_PathDensity";
+            ENG_TEXT.Add(key_text, "Path density");
+            KOR_TEXT.Add(key_text, "경로 밀도");
+            JAP_TEXT.Add(key_text, "パス密度");
 
             key_text = "PG_PathTypeChangeButton_ToOpen";
             ENG_TEXT.Add(key_text, "Change to opened path");
@@ -82,6 +82,11 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "クローズドパスに変更");
 
             key_text = "PG_PathTypeChangeButton_isLivePath";
+            ENG_TEXT.Add(key_text, "Update path in runtime");
+            KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
+            JAP_TEXT.Add(key_text, "ベイクドパス");
+
+            key_text = "PG_PathTypeChangeButton_Path";
             ENG_TEXT.Add(key_text, "Update path in runtime");
             KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
             JAP_TEXT.Add(key_text, "ベイクドパス");
@@ -271,10 +276,55 @@ namespace CurvedPathGenertator {
             KOR_TEXT.Add(key_text, "렌더링");
             JAP_TEXT.Add(key_text, "レンダリング");
 
+            key_text = "PG_H1_Rendering_Label";
+            ENG_TEXT.Add(key_text, "A visual representation of the path.");
+            KOR_TEXT.Add(key_text, "경로를 가시적으로 표현 할 수 있습니다.");
+            JAP_TEXT.Add(key_text, "パスの視覚的表現");
+
             key_text = "PG_Rendering_isGeneratePathMesh";
             ENG_TEXT.Add(key_text, "Generate path mesh in runtime");
-            KOR_TEXT.Add(key_text, "런타임에 경로 메시를 생성합니다.");
+            KOR_TEXT.Add(key_text, "런타임에 경로 메쉬를 생성합니다.");
             JAP_TEXT.Add(key_text, "実行時にパスメッシュを生成する");
+
+            key_text = "PG_Rendering_MaterialInfo";
+            ENG_TEXT.Add(key_text, "Material Infomation");
+            KOR_TEXT.Add(key_text, "머터리얼 정보");
+            JAP_TEXT.Add(key_text, "材料情報");
+
+            key_text = "PG_Rendering_LineMeshWidth";
+            ENG_TEXT.Add(key_text, "Width of line mesh");
+            KOR_TEXT.Add(key_text, "경로 메쉬의 두께");
+            JAP_TEXT.Add(key_text, "ラインメッシュの幅");
+
+            key_text = "PG_Rendering_LineTexture";
+            ENG_TEXT.Add(key_text, "Texture of\nline mesh");
+            KOR_TEXT.Add(key_text, "경로 메쉬의\n텍스처");
+            JAP_TEXT.Add(key_text, "ライン\nメッシュの\nテクスチャ");
+
+            key_text = "PG_Rendering_ScrollSpeed";
+            ENG_TEXT.Add(key_text, "Scroll speed");
+            KOR_TEXT.Add(key_text, "스크롤 속도");
+            JAP_TEXT.Add(key_text, "スクロール速度");
+
+            key_text = "PG_Rendering_Opacity";
+            ENG_TEXT.Add(key_text, "Opacity");
+            KOR_TEXT.Add(key_text, "불투명도");
+            JAP_TEXT.Add(key_text, "不透明度");
+
+            key_text = "PG_Rendering_Tilling";
+            ENG_TEXT.Add(key_text, "Tiling");
+            KOR_TEXT.Add(key_text, "타일링");
+            JAP_TEXT.Add(key_text, "タイリング");
+
+            key_text = "PG_Rendering_RenderQueue";
+            ENG_TEXT.Add(key_text, "Render queue");
+            KOR_TEXT.Add(key_text, "렌더 큐");
+            JAP_TEXT.Add(key_text, "レンダリングキュー");
+
+            key_text = "PG_Rendering_RenderQueueHelp";
+            ENG_TEXT.Add(key_text, "Render queue default value is 3000");
+            KOR_TEXT.Add(key_text, "렌더 큐의 기본값은 3000입니다.");
+            JAP_TEXT.Add(key_text, "レンダリング キューのデフォルト値は 3000 です");
         }
 
         static public string GetLocalText(string key_text) {

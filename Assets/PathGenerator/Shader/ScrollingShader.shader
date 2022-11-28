@@ -25,6 +25,7 @@ Shader "PathGenerator/ScrollingArrow"
         _MainTex ( "Main Texture", 2D ) = "white" {}
         [IntRange] _Speed ( "Speed", Range ( -100, 100 ) ) = 30
         _Alpha ("Alpha", Range(0,1)) = 1
+        _Fill("Fill Path", Range(0,1)) = 1
     }
 
         SubShader
@@ -73,16 +74,16 @@ Shader "PathGenerator/ScrollingArrow"
                     // get scroll value
                     float2 scroll = float2(0, (frac ( _Time.x * _Speed )));
 
-                    float4 _AlphaColor = float4 (1, 1, 1, _Alpha);
                     // sample texture
+                    float4 _AlphaColor = float4 (1, 1, 1, _Alpha);
                     fixed4 col = tex2D ( _MainTex, (i.uv - scroll) ) * _AlphaColor;
 
                     //// discard if uv.y is below below cut value
-                    clip ( step ( i.uv.y, _MainTex_ST.y ) - 0.1 );
+                    clip ( step ( i.uv.y, (_Fill - 0.5)* _MainTex_ST.y) - 0.1);
 
                     return col;
 
-                    // make un-animated part black
+                    //make un-animated part black
                     //return col*step(i.uv.y, _Cut * _MainTex_ST.y);
                 }
                 ENDCG
