@@ -1,27 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-//=========================================================================================================================
+//==========================================================================================================================================================================
+/*      ,------.   ,---. ,--------.,--.  ,--.     ,----.   ,------.,--.  ,--.,------.,------.   ,---. ,--------. ,-----. ,------.  
+        |  .--. ' /  O  \'--.  .--'|  '--'  |    '  .-./   |  .---'|  ,'.|  ||  .---'|  .--. ' /  O  \'--.  .--''  .-.  '|  .--. ' 
+        |  '--' ||  .-.  |  |  |   |  .--.  |    |  | .---.|  `--, |  |' '  ||  `--, |  '--'.'|  .-.  |  |  |   |  | |  ||  '--'.' 
+        |  | --' |  | |  |  |  |   |  |  |  |    '  '--'  ||  `---.|  | `   ||  `---.|  |\  \ |  | |  |  |  |   '  '-'  '|  |\  \  
+        `--'     `--' `--'  `--'   `--'  `--'     `------' `------'`--'  `--'`------'`--' '--'`--' `--'  `--'    `-----' `--' '--'                                       */
+//=========================================================================================================================================================================
 //
 //  PATH GENERATOR GUI LANGUAGE CLASS
 //
 //  GUI language management class
 //  GUI 언어 관리 클래스
 //
-//-------------------------------------------------------------------------------------------------------------------------
-//  2022.11.17 _ KimYC1223
-//=========================================================================================================================
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  2022.11.29 _ KimYC1223
+//=========================================================================================================================================================================
 namespace CurvedPathGenertator {
+
+    //=====================================================================================================================================================================
+    // Supported languages  |  Chinese support coming soon
+    // 지원되는 언어        |  중국어 지원 추가 예정
+    //=====================================================================================================================================================================
     public enum LANGUAGE { ENG, KOR, JAP };
-    // Chinese support coming soon
-    // 중국어 지원 추가 예정
 
     public class PathGeneratorGUILanguage {
+        public static LANGUAGE CurrentLanguage = LANGUAGE.ENG;
+
         static Dictionary<string, string> ENG_TEXT;
         static Dictionary<string, string> KOR_TEXT;
         static Dictionary<string, string> JAP_TEXT;
 
+        //=================================================================================================================================================================
+        // Init Localization method
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // Initialize language-specific Dictionary variables
+        // 언어별 Dictionary 변수 초기화
+        //=================================================================================================================================================================
         static public void InitLocalization() {
             string key_text;
             //if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
@@ -31,13 +47,14 @@ namespace CurvedPathGenertator {
             KOR_TEXT = new Dictionary<string, string>();
             JAP_TEXT = new Dictionary<string, string>();
 
-            //=============================================================================================================
+            //=============================================================================================================================================================
+            //  [PG] Path Generator GUI text settings
             //  [PG] Path Generator GUI 텍스트 설정
-            //=============================================================================================================
+            //=============================================================================================================================================================
             key_text = "PG_Title";
             ENG_TEXT.Add(key_text, "Curved Path Generator");
             KOR_TEXT.Add(key_text, "곡선 경로 생성기");
-            JAP_TEXT.Add(key_text, "曲線パスジェネレータ");
+            JAP_TEXT.Add(key_text, "カーブパスジェネレータ");
 
             key_text = "PG_SubTitle";
             ENG_TEXT.Add(key_text, "Developed by KimYC1223");
@@ -52,7 +69,7 @@ namespace CurvedPathGenertator {
             key_text = "PG_Angle";
             ENG_TEXT.Add(key_text, "Angle");
             KOR_TEXT.Add(key_text, "앵글");
-            JAP_TEXT.Add(key_text, "角度");
+            JAP_TEXT.Add(key_text, "アングル");
 
             key_text = "PG_Center";
             ENG_TEXT.Add(key_text, "Move to center");
@@ -82,7 +99,7 @@ namespace CurvedPathGenertator {
             key_text = "PG_PathTypeChangeButton_isLivePath";
             ENG_TEXT.Add(key_text, "Update path in runtime");
             KOR_TEXT.Add(key_text, "런타임에 경로 업데이트");
-            JAP_TEXT.Add(key_text, "ベイクドパス");
+            JAP_TEXT.Add(key_text, "ランタイムにパスアップデート");
 
             key_text = "PG_H1_EditorSetting";
             ENG_TEXT.Add(key_text, "Editor setting");
@@ -90,9 +107,12 @@ namespace CurvedPathGenertator {
             JAP_TEXT.Add(key_text, "エディタ関連");
 
             key_text = "PG_PathTypeChangeButton_isLivePathWarning";
-            ENG_TEXT.Add(key_text, "Updates the path every frame. Therefore, even if the node or angle changes position at runtime, it is applied to the path immediately. However, the amount of calculation may increase.");
-            KOR_TEXT.Add(key_text, "매 프레임마다 경로를 업데이트 합니다. 따라서, 런타임에서 Node나 Angle의 위치가 바뀌어도 즉시 경로에 적용됩니다. 다만 계산량이 많아 질 수 있습니다.");
-            JAP_TEXT.Add(key_text, "フレームごとにパスを更新します。 したがって、ランタイムでNodeやAngleの位置が変わっても直ちに経路に適用されます。 ただし、計算量が多くなる可能性があります。");
+            ENG_TEXT.Add(key_text, "Updates the path every frame. Therefore, even if the node or angle changes position at runtime,"+
+                                    "it is applied to the path immediately. However, the amount of calculation may increase.");
+            KOR_TEXT.Add(key_text, "매 프레임마다 경로를 업데이트 합니다. 따라서, 런타임에서 Node나 Angle의 위치가 바뀌어도"+
+                                    "즉시 경로에 적용됩니다. 다만 계산량이 많아 질 수 있습니다.");
+            JAP_TEXT.Add(key_text, "フレームごとにパスを更新します。 したがって、ランタイムでノードやアングルの" +
+                                    "位置が変わっても直ちに経路に適用されます。 ただし、計算量が多くなる可能性があります。");
 
             key_text = "PG_EditorModeSelect_Label";
             ENG_TEXT.Add(key_text, "Node & Anchor editor mode");
@@ -117,32 +137,32 @@ namespace CurvedPathGenertator {
             key_text = "PG_ShowLabel_Label";
             ENG_TEXT.Add(key_text, "Visual options : ");
             KOR_TEXT.Add(key_text, "Scene에서 ...");
-            JAP_TEXT.Add(key_text, "シーン内の ...");
+            JAP_TEXT.Add(key_text, "シーンで ...");
 
             key_text = "PG_ShowLabelToggle";
             ENG_TEXT.Add(key_text, "Show labels");
             KOR_TEXT.Add(key_text, "레이블 그리기");
-            JAP_TEXT.Add(key_text, "ラベルの表示");
+            JAP_TEXT.Add(key_text, "ラベルを見せる");
 
             key_text = "PG_ShowIconsToggle";
             ENG_TEXT.Add(key_text, "Show icons");
             KOR_TEXT.Add(key_text, "아이콘 그리기");
-            JAP_TEXT.Add(key_text, "アイコンの表示");
+            JAP_TEXT.Add(key_text, "アイコンを見せる");
 
             key_text = "PG_TopViewModeButton_toTop";
             ENG_TEXT.Add(key_text, "Change to top view mode");
             KOR_TEXT.Add(key_text, "탑 뷰 모드로 변경");
-            JAP_TEXT.Add(key_text, "トップビューモードに変更する");
+            JAP_TEXT.Add(key_text, "トップビューモードに変更");
 
             key_text = "PG_TopViewModeButton_Reset";
             ENG_TEXT.Add(key_text, "Reset view mode");
             KOR_TEXT.Add(key_text, "뷰 모드 리셋");
-            JAP_TEXT.Add(key_text, "ビューモードをリセットする");
+            JAP_TEXT.Add(key_text, "ビューモードリセット");
 
             key_text = "PG_Colors_Label";
             ENG_TEXT.Add(key_text, "Guideline Colors");
             KOR_TEXT.Add(key_text, "가이드라인 색상");
-            JAP_TEXT.Add(key_text, "ガイドライン 色");
+            JAP_TEXT.Add(key_text, "ガイドラインの色");
 
             key_text = "PG_H1_Node";
             ENG_TEXT.Add(key_text, "Nodes");
@@ -182,7 +202,7 @@ namespace CurvedPathGenertator {
             key_text = "PG_NodeListTable_Empty";
             ENG_TEXT.Add(key_text, "Empty");
             KOR_TEXT.Add(key_text, "비어있음");
-            JAP_TEXT.Add(key_text, "空いています。");
+            JAP_TEXT.Add(key_text, "空");
 
             key_text = "PG_NodeList_CreateNodeButton";
             ENG_TEXT.Add(key_text, "[+] Create node");
@@ -217,57 +237,57 @@ namespace CurvedPathGenertator {
             key_text = "PG_TotalControl_Label";
             ENG_TEXT.Add(key_text, "for the all nodes & angles...");
             KOR_TEXT.Add(key_text, "모든 노드와 앵글들에 대해...");
-            JAP_TEXT.Add(key_text, "すべてのノードと角度に対して...");
+            JAP_TEXT.Add(key_text, "すべてのノードとアングルに対して...");
 
             key_text = "PG_TotalControl_SetZeroToX";
             ENG_TEXT.Add(key_text, "X to 0");
-            KOR_TEXT.Add(key_text, "X값을\n0으로");
-            JAP_TEXT.Add(key_text, "X値を0に");
+            KOR_TEXT.Add(key_text, "X를\n0으로");
+            JAP_TEXT.Add(key_text, "Xを0に");
 
             key_text = "PG_TotalControl_SetZeroToY";
             ENG_TEXT.Add(key_text, "Y to 0");
-            KOR_TEXT.Add(key_text, "Y값을\n0으로");
-            JAP_TEXT.Add(key_text, "Y値を0に");
+            KOR_TEXT.Add(key_text, "Y를\n0으로");
+            JAP_TEXT.Add(key_text, "Yを0に");
 
             key_text = "PG_TotalControl_SetZeroToZ";
             ENG_TEXT.Add(key_text, "Z to 0");
-            KOR_TEXT.Add(key_text, "Z값을\n0으로");
-            JAP_TEXT.Add(key_text, "Z値を0に");
+            KOR_TEXT.Add(key_text, "Z를\n0으로");
+            JAP_TEXT.Add(key_text, "Zを0に");
 
             key_text = "PG_TotalControl_SetAvgToX";
             ENG_TEXT.Add(key_text, "X\nequalization");
-            KOR_TEXT.Add(key_text, "X값\n평준화");
-            JAP_TEXT.Add(key_text, "X値\n平準化");
+            KOR_TEXT.Add(key_text, "X\n평준화");
+            JAP_TEXT.Add(key_text, "X\n平準化");
 
             key_text = "PG_TotalControl_SetAvgToY";
             ENG_TEXT.Add(key_text, "Y\nequalization");
-            KOR_TEXT.Add(key_text, "Y값\n평준화");
-            JAP_TEXT.Add(key_text, "Y値\n平準化");
+            KOR_TEXT.Add(key_text, "Y\n평준화");
+            JAP_TEXT.Add(key_text, "Y\n平準化");
 
             key_text = "PG_TotalControl_SetAvgToZ";
             ENG_TEXT.Add(key_text, "Z\nequalization");
-            KOR_TEXT.Add(key_text, "Z값\n평준화");
-            JAP_TEXT.Add(key_text, "Z値\n平準化");
+            KOR_TEXT.Add(key_text, "Z\n평준화");
+            JAP_TEXT.Add(key_text, "Z\n平準化");
 
             key_text = "PG_TotalControl_SpecificValue";
             ENG_TEXT.Add(key_text, "Specific value");
             KOR_TEXT.Add(key_text, "특정값");
-            JAP_TEXT.Add(key_text, "特定の値");
+            JAP_TEXT.Add(key_text, "特定値");
 
             key_text = "PG_TotalControl_SetSpecificToX";
             ENG_TEXT.Add(key_text, "X to ...");
-            KOR_TEXT.Add(key_text, "X값을 ...");
-            JAP_TEXT.Add(key_text, "X値をこの ...");
+            KOR_TEXT.Add(key_text, "X를 ...");
+            JAP_TEXT.Add(key_text, "Xをこの ...");
 
             key_text = "PG_TotalControl_SetSpecificToY";
             ENG_TEXT.Add(key_text, "Y to ...");
-            KOR_TEXT.Add(key_text, "Y값을 ...");
-            JAP_TEXT.Add(key_text, "Y値をこの ...");
+            KOR_TEXT.Add(key_text, "Y를 ...");
+            JAP_TEXT.Add(key_text, "Yをこの ...");
 
             key_text = "PG_TotalControl_SetSpecificToZ";
             ENG_TEXT.Add(key_text, "Z to ...");
-            KOR_TEXT.Add(key_text, "Z값을 ...");
-            JAP_TEXT.Add(key_text, "Z値をこの ...");
+            KOR_TEXT.Add(key_text, "Z을 ...");
+            JAP_TEXT.Add(key_text, "Zをこの ...");
 
             key_text = "PG_H1_Rendering";
             ENG_TEXT.Add(key_text, "Rendering");
@@ -277,17 +297,17 @@ namespace CurvedPathGenertator {
             key_text = "PG_H1_Rendering_Label";
             ENG_TEXT.Add(key_text, "A visual representation of the path.");
             KOR_TEXT.Add(key_text, "경로를 가시적으로 표현 할 수 있습니다.");
-            JAP_TEXT.Add(key_text, "パスの視覚的表現");
+            JAP_TEXT.Add(key_text, "パスを可視的に表現することができます。");
 
             key_text = "PG_Rendering_isGeneratePathMesh";
-            ENG_TEXT.Add(key_text, "Generate path mesh in runtime");
+            ENG_TEXT.Add(key_text, "Generate path mesh in runtime.");
             KOR_TEXT.Add(key_text, "런타임에 경로 메쉬를 생성합니다.");
-            JAP_TEXT.Add(key_text, "実行時にパスメッシュを生成する");
+            JAP_TEXT.Add(key_text, "ランタイムにパスメッシュを生成する。");
 
             key_text = "PG_Rendering_MaterialInfo";
             ENG_TEXT.Add(key_text, "Material Infomation");
             KOR_TEXT.Add(key_text, "머터리얼 정보");
-            JAP_TEXT.Add(key_text, "材料情報");
+            JAP_TEXT.Add(key_text, "マテリアル情報");
 
             key_text = "PG_Rendering_LineMeshWidth";
             ENG_TEXT.Add(key_text, "Width of line mesh");
@@ -317,7 +337,7 @@ namespace CurvedPathGenertator {
             key_text = "PG_Rendering_Filling";
             ENG_TEXT.Add(key_text, "Filling");
             KOR_TEXT.Add(key_text, "채우기");
-            JAP_TEXT.Add(key_text, "塗りつぶす");
+            JAP_TEXT.Add(key_text, "詰める");
 
             key_text = "PG_Rendering_RenderQueue";
             ENG_TEXT.Add(key_text, "Render queue");
@@ -327,14 +347,96 @@ namespace CurvedPathGenertator {
             key_text = "PG_Rendering_RenderQueueHelp";
             ENG_TEXT.Add(key_text, "Render queue default value is 3000");
             KOR_TEXT.Add(key_text, "렌더 큐의 기본값은 3000입니다.");
-            JAP_TEXT.Add(key_text, "レンダリング キューのデフォルト値は 3000 です");
+            JAP_TEXT.Add(key_text, "レンダリング キューのデフォルト値は 3000 です。");
+
+            //=============================================================================================================================================================
+            //  [PF] Path Follower GUI text settings
+            //  [PF] Path Follower GUI 텍스트 설정
+            //=============================================================================================================================================================
+            key_text = "PF_Title";
+            ENG_TEXT.Add(key_text, "Curved Path Follower");
+            KOR_TEXT.Add(key_text, "곡선 경로 팔로워");
+            JAP_TEXT.Add(key_text, "カーブパスフォロワー");
+
+            key_text = "PF_SubTitle";
+            ENG_TEXT.Add(key_text, "Developed by KimYC1223");
+            KOR_TEXT.Add(key_text, "KimYC1223 제공");
+            JAP_TEXT.Add(key_text, "KimYC1223 によって開発されました");
+
+            key_text = "PF_H1_Info";
+            ENG_TEXT.Add(key_text, "Movement info");
+            KOR_TEXT.Add(key_text, "이동 정보");
+            JAP_TEXT.Add(key_text, "ム-ヴメントインフォメーション");
+
+            key_text = "PF_Info_Label";
+            ENG_TEXT.Add(key_text, "Movement information for an object");
+            KOR_TEXT.Add(key_text, "경로를 따라 움직이는 물체의 이동 정보");
+            JAP_TEXT.Add(key_text, "経路に沿って移動する物体の移動情報");
+
+            key_text = "PF_Info_Speed";
+            ENG_TEXT.Add(key_text, "Speed");
+            KOR_TEXT.Add(key_text, "속력");
+            JAP_TEXT.Add(key_text, "スピード");
+
+            key_text = "PF_Info_Threshold";
+            ENG_TEXT.Add(key_text, "Distance threshold");
+            KOR_TEXT.Add(key_text, "거리 임계값");
+            JAP_TEXT.Add(key_text, "ディスタンス・スレシュホールド");
+
+            key_text = "PF_Info_Warning";
+            ENG_TEXT.Add(key_text, "Too fast speed or too low a distance threshold can interfere with normal operation.");
+            KOR_TEXT.Add(key_text, "너무 빠른 속도나 너무 낮은 거리 임계값은 정상적인 동작을 방해 할 수 있습니다.");
+            JAP_TEXT.Add(key_text, "高速すぎるか低すぎるディスタンス・スレシュホールドは、正常な動作を妨げる可能性があります。");
+
+            key_text = "PF_Info_TurningSpeed";
+            ENG_TEXT.Add(key_text, "Turning speed");
+            KOR_TEXT.Add(key_text, "회전 속력");
+            JAP_TEXT.Add(key_text, "ターニングスピード");
+
+            key_text = "PF_Info_IsLoop";
+            ENG_TEXT.Add(key_text, "Is loop");
+            KOR_TEXT.Add(key_text, "반복 활성화");
+            JAP_TEXT.Add(key_text, "ルーピング・アクティベート");
+
+            key_text = "PF_Info_IsMove";
+            ENG_TEXT.Add(key_text, "Is move");
+            KOR_TEXT.Add(key_text, "이동 활성화");
+            JAP_TEXT.Add(key_text, "ムーブメント・アクティベート");
+
+            key_text = "PF_Info_Path";
+            ENG_TEXT.Add(key_text, "Path");
+            KOR_TEXT.Add(key_text, "경로");
+            JAP_TEXT.Add(key_text, "パス");
+
+            key_text = "PF_H1_Events";
+            ENG_TEXT.Add(key_text, "Events");
+            KOR_TEXT.Add(key_text, "이벤트");
+            JAP_TEXT.Add(key_text, "イベント");
+
+            key_text = "PF_Events_Label";
+            ENG_TEXT.Add(key_text, "Execute a method when a route is completed");
+            KOR_TEXT.Add(key_text, "경로를 완주 했을 때 메소드 실행");
+            JAP_TEXT.Add(key_text, "ルートが完了したときにメソッドを実行する");
+
+            key_text = "PF_Events_endEventLabel";
+            ENG_TEXT.Add(key_text, "Execute a methods");
+            KOR_TEXT.Add(key_text, "메소드 실행");
+            JAP_TEXT.Add(key_text, "メソッドを実行する");
+
+
         }
 
+        //=================================================================================================================================================================
+        //  Get Local Text
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+        //  Text output corresponding to the set language
+        //  설정된 언어에 해당하는 텍스트 출력
+        //=================================================================================================================================================================
         static public string GetLocalText(string key_text) {
             try{
-                if (PathGeneratorGUI.CurrentLanguage == LANGUAGE.KOR)
+                if (CurrentLanguage == LANGUAGE.KOR)
                     return KOR_TEXT[key_text];
-                else if (PathGeneratorGUI.CurrentLanguage == LANGUAGE.JAP)
+                else if (CurrentLanguage == LANGUAGE.JAP)
                     return JAP_TEXT[key_text];
                 else
                     return ENG_TEXT[key_text];

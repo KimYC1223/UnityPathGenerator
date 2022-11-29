@@ -17,34 +17,41 @@ using UnityEngine;
 //  Path Generator가 만든 Path를 따라가는 기능
 //
 //-------------------------------------------------------------------------------------------------------------------------------------
-//  2020.08.30 _ KimYC1223
+//  2022.11.29 _ KimYC1223
 //=====================================================================================================================================
+#region PathFollower
 namespace CurvedPathGenertator {
 
+    #region PathFollwer_RequireComponents
     [RequireComponent(typeof(Rigidbody))]
+    #endregion
 
+    #region PathFollower_Class
     public class PathFollower : MonoBehaviour {
+
+        #region PathFollower_Variables
         [System.Serializable]
         public class EndEvent : UnityEngine.Events.UnityEvent { }
 
         [SerializeField]
         public EndEvent endEvent;                   // method to run when this is done moving
 
-        [SerializeField]
-        public EndEvent repeatEvent;                // method to run when this is done one loop
-
         public PathGenerator path;                  // choose the path to move     
         public float speed = 100f;                  // move speed
+        public float distanceThreshold = 0.2f;      // distance threshold
         public float turningSpeed = 10f;            // rotation speed 
         public bool isLoop = false;                 // does it move repeatedly?
         public bool isMove = true;                  // is this moving now?
+        public bool isEndEventEnable = false;       // is End event enable?
 
+        private bool checkFlag = false;             // flag variable
         private Rigidbody targetRigidbody;          // the rigidbody of the object to move
         private GameObject target;                  // object to move;
         private Vector3 nextPath;                   // the direction the obejct will move
         private int pathIndex = 1;                  // the path index the object will move
-        private float distanceThreshold = 0.2f;     // distance threshold
+        #endregion
 
+        #region PathFollower_StartMethod
         //=============================================================================================================================
         // Start method
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -53,30 +60,44 @@ namespace CurvedPathGenertator {
         //=============================================================================================================================
         void Start() {
             targetRigidbody = GetComponent<Rigidbody>();
-            if (path == null) {
-                Debug.LogError("no path\n경로가 없음");
-                return;
-            }
-            target = this.gameObject;
-            nextPath = path.PathList[1];
-            this.transform.position = path.PathList[0];
-        }
 
+            if (path != null) { 
+                target = this.gameObject;
+                nextPath = path.PathList[1];
+                this.transform.position = path.PathList[0];
+            }
+        }
+        #endregion
+
+        #region PathFollower_FixedUpdateMethod
         //=============================================================================================================================
         // Fixed update method
         //-----------------------------------------------------------------------------------------------------------------------------
         // set velocity & direction, and calculate distance
         // 속도와 방향 설정 후 거리 계산
         //=============================================================================================================================
-        void FixedUpdate() {
-            if (path == null) return;
+        public void FixedUpdate() {
+            if (!isMove) return;
+
+            if (path == null) {
+                isMove = false; checkFlag = false;
+                Debug.LogError("no path\n경로가 없음");
+                return;
+            }
+
+            if(!checkFlag) {
+                checkFlag = true;
+                target = this.gameObject;
+                nextPath = path.PathList[1];
+                this.transform.position = path.PathList[0];
+            }
 
             //=========================================================================================================================
             //  If it is not moving, stop object and return
             //  움직이지 않는다면, 물체를 멈추고 종료
             //=========================================================================================================================
             if (!isMove) {
-                targetRigidbody.velocity = new Vector3(0, 0, 0);        // Stop
+                targetRigidbody.velocity = new Vector3(0, 0, 0);
                 return;
             }
 
@@ -127,8 +148,8 @@ namespace CurvedPathGenertator {
                         if (isLoop) {
                             // If repeatEvent isn't null, run method.
                             // repeatEvent null이 아니면, method를 실행
-                            if (repeatEvent != null) {
-                                repeatEvent.Invoke();
+                            if (endEvent != null && isEndEventEnable) {
+                                endEvent.Invoke();
                             }
                             nextPath = path.PathList[0];
                             pathIndex = 0;
@@ -139,7 +160,7 @@ namespace CurvedPathGenertator {
                         //============================================================================================================
                         } else {
                             StopFollow();
-                            if (endEvent != null) {
+                            if (endEvent != null && isEndEventEnable) {
                                 endEvent.Invoke();
                             }
                         }
@@ -159,8 +180,8 @@ namespace CurvedPathGenertator {
                             target.transform.LookAt(path.PathList[1]);
                             // If repeatEvent isn't null, run method.
                             // repeatEvent null이 아니면, method를 실행
-                            if (repeatEvent != null) {
-                                repeatEvent.Invoke();
+                            if (endEvent != null && isEndEventEnable) {
+                                endEvent.Invoke();
                             }
                         } else {
                             //========================================================================================================
@@ -168,7 +189,7 @@ namespace CurvedPathGenertator {
                             // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
                             //========================================================================================================
                             StopFollow();
-                            if (endEvent != null) {
+                            if (endEvent != null && isEndEventEnable) {
                                 endEvent.Invoke();
                             }
                         }
@@ -176,7 +197,9 @@ namespace CurvedPathGenertator {
                 }
             }
         }
+        #endregion
 
+        #region PathFollower_GetPassedLengthMethod
         //=============================================================================================================================
         // Get Passed Length method
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +218,9 @@ namespace CurvedPathGenertator {
             else return path.pathLengths[pathIndex - 2] +
                           ( path.PathList[pathIndex - 1] - this.transform.position ).magnitude;
         }
+        #endregion
 
+        #region PathFollower_MovementMethod
         //=============================================================================================================================
         // Stop Follow method
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -216,5 +241,8 @@ namespace CurvedPathGenertator {
             if (path == null) return;
             isMove = true;
         }
+        #endregion
     }
+    #endregion
 }
+#endregion

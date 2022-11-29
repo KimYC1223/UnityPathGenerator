@@ -1,14 +1,8 @@
-using NUnit;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
-using static UnityEditor.PlayerSettings;
 
 //===============================================================================================================================================================
 /*      ,------.   ,---. ,--------.,--.  ,--.     ,----.   ,------.,--.  ,--.,------.,------.   ,---. ,--------. ,-----. ,------.  
@@ -24,16 +18,14 @@ using static UnityEditor.PlayerSettings;
 //  베지어 곡선 기반의 path를 만드는데 도움을 주는 GUI
 //
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
-//  2020.09.01 _ KimYC1223
+//  2022.11.29 _ KimYC1223
 //===============================================================================================================================================================
-#region PathGenerator
+#region PathGeneratorGUI
 namespace CurvedPathGenertator {
 
     [CustomEditor(typeof(PathGenerator))]
     class PathGeneratorGUI : Editor {
         #region PathGenerator_GUI_Variables
-        static public LANGUAGE CurrentLanguage = LANGUAGE.ENG;
-
         private Vector3 old_Position = new Vector3(0,0,0);                              // position value
         private Vector3 old_Scale = new Vector3(1f,1f,1f);                              // scale value
         private Quaternion old_Rotation = Quaternion.identity;                          // rotation value
@@ -51,7 +43,7 @@ namespace CurvedPathGenertator {
 
         private GUIStyle ComponentTitle;                                                // GUI style : Component Title
         public GUIStyle H1Text;                                                         // GUI style : H1
-        public GUIStyle BoldText;                                                       // GUI style : H1
+        public GUIStyle BoldText;                                                       // GUI style : BoldText
         private Texture2D scrollViewBG;                                                 // Scroll view (node list, angle list) background
 
         private Color GuidLineColor_1 = Color.green;                                    // Guidline preview color 1
@@ -163,20 +155,20 @@ namespace CurvedPathGenertator {
             //  영어, 한국어, 일본어를 지원함. 중국어는 추후 추가 예정.
             //===================================================================================================================================================
             GUILayout.BeginHorizontal();
-            GUI.enabled = CurrentLanguage != LANGUAGE.ENG;
+            GUI.enabled = PathGeneratorGUILanguage.CurrentLanguage != LANGUAGE.ENG;
             if (GUILayout.Button("English", GUILayout.Height(22))) {
                 Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                CurrentLanguage = LANGUAGE.ENG;
+                PathGeneratorGUILanguage.CurrentLanguage = LANGUAGE.ENG;
             }
-            GUI.enabled = CurrentLanguage != LANGUAGE.KOR;
+            GUI.enabled = PathGeneratorGUILanguage.CurrentLanguage != LANGUAGE.KOR;
             if (GUILayout.Button("한국어", GUILayout.Height(22))) {
                 Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                CurrentLanguage = LANGUAGE.KOR;
+                PathGeneratorGUILanguage.CurrentLanguage = LANGUAGE.KOR;
             }
-            GUI.enabled = CurrentLanguage != LANGUAGE.JAP;
+            GUI.enabled = PathGeneratorGUILanguage.CurrentLanguage != LANGUAGE.JAP;
             if (GUILayout.Button("日本語", GUILayout.Height(22))) {
                 Undo.RecordObject(pathGenerator, "Modify " + pathGenerator.gameObject.name);
-                CurrentLanguage = LANGUAGE.JAP;
+                PathGeneratorGUILanguage.CurrentLanguage = LANGUAGE.JAP;
             }
             GUI.enabled = true;
             GUILayout.EndHorizontal();
@@ -677,11 +669,8 @@ namespace CurvedPathGenertator {
                     SetMaterail();
                 }
             }
-
-            GUILayout.Space(15);
-
+            GUILayout.Space(35f);
             #endregion
-
             #endregion
         }
         #endregion
@@ -1514,6 +1503,12 @@ namespace CurvedPathGenertator {
         #endregion
 
         #region PathGenerator_OnSceneUI_Main_Functions
+        //=======================================================================================================================================================
+        // Draw default setting method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // A method that displays a logo and a simple button at the top left of the scene view
+        // Scene view의 좌측 상단에 Logo와 간단한 버튼을 띄우는 메소드
+        //=======================================================================================================================================================
         private void DrawDefaultSettingPanel(Rect panelTransformInfo) {
             PathGenerator pathGenerator = target as PathGenerator;      // 조절할 PathGenerator
 
@@ -1540,6 +1535,12 @@ namespace CurvedPathGenertator {
 
         }
 
+        //=======================================================================================================================================================
+        // Draw editor setting method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // A method that brings up a panel where you can set the editor at the top left of the scene view.
+        // Scene view의 좌측 상단에 editor 설정을 할 수 있는 패널을 띄우는 메소드
+        //=======================================================================================================================================================
         private void DrawEditorSettingPanel(Rect panelTransformInfo) {
             PathGenerator pathGenerator = target as PathGenerator;      // 조절할 PathGenerator
 
@@ -1558,19 +1559,26 @@ namespace CurvedPathGenertator {
 
             Handles.BeginGUI();
 
-            GUILayout.BeginArea(paddingRect2);
-            if(GUILayout.Button("X",GUILayout.Width(20),GUILayout.Height(20)))
-                isShowEditorSetting = false;
-            GUILayout.EndArea();
-
-
-            GUILayout.BeginArea(paddingRect);
             //===================================================================================================================================================
             // Edit mode selection button
             //---------------------------------------------------------------------------------------------------------------------------------------------------
             // Choose edit mode type
             // 에디터 모드를 결정하는 버튼
             //===================================================================================================================================================
+            GUILayout.BeginArea(paddingRect2);
+            if(GUILayout.Button("X",GUILayout.Width(20),GUILayout.Height(20)))
+                isShowEditorSetting = false;
+            GUILayout.EndArea();
+
+
+
+            //===================================================================================================================================================
+            // Edit mode pannel
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // GUI set in charge of Editor settings
+            // Editor 설정을 담당하는 GUI 모음
+            //===================================================================================================================================================
+            GUILayout.BeginArea(paddingRect);
             if (H1Text == null) {
                 H1Text = new GUIStyle(EditorStyles.label);
                 H1Text.fontStyle = FontStyle.Bold;
@@ -1579,6 +1587,13 @@ namespace CurvedPathGenertator {
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_H1_EditorSetting"), H1Text);
             GUILayout.Space(3);
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Label"));
+
+            //===================================================================================================================================================
+            // Handle mode setting
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // Buttons that can set normal control, individual control, and total control
+            // 일반 제어, 개별 제어, 전체 제어를 설정 할 수 있는 버튼들
+            //===================================================================================================================================================
             GUILayout.BeginHorizontal();
             GUI.enabled = pathGenerator.EditMode != 0;
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_EditorModeSelect_Disable"), GUILayout.Height(25))) {
@@ -1613,10 +1628,10 @@ namespace CurvedPathGenertator {
             GUILayout.Space(10);
 
             //===================================================================================================================================================
-            // Open / Close path selection button
+            // Top mode button
             //---------------------------------------------------------------------------------------------------------------------------------------------------
-            // Choose open / close path type
-            // 열린 패스 / 닫힌 패스를 정하는 버튼
+            // Switching Top view mode button
+            // 탑 뷰 모드를 정하는 버튼
             //===================================================================================================================================================
             if (GUILayout.Button(
                     ( isTopViewMode ) ? PathGeneratorGUILanguage.GetLocalText("PG_TopViewModeButton_Reset") :
@@ -1627,6 +1642,12 @@ namespace CurvedPathGenertator {
             }
             GUILayout.Space(7);
 
+            //===================================================================================================================================================
+            // Guide colors
+            //---------------------------------------------------------------------------------------------------------------------------------------------------
+            // A panel that determines the color of the guidelines
+            // 가이드라인의 색상을 결정하는 패널
+            //===================================================================================================================================================
             GUILayout.BeginHorizontal();
             GUILayout.Label(PathGeneratorGUILanguage.GetLocalText("PG_Colors_Label"));
             GuidLineColor_1 = EditorGUILayout.ColorField(GuidLineColor_1);
@@ -1638,8 +1659,16 @@ namespace CurvedPathGenertator {
 
         }
 
+        //=======================================================================================================================================================
+        // Draw text label on scene method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // A method to display a simple text in the scene
+        // scene에 간단한 텍스트를 띄우는 메소드
+        //=======================================================================================================================================================
         private void DrawTextLabelOnScene(Vector3 worldPos, Color TextColor, string Text, bool isNode, int i) {
             Vector3 guiLoc = HandleUtility.WorldToGUIPointWithDepth(worldPos);
+
+            // 카메라의 뒤에 있을 경우, 보이지 않도록 설정
             if (guiLoc.z < 0) return;
             var rect = new Rect(guiLoc.x - 30f, guiLoc.y + 10, 60, 20);
             Handles.BeginGUI();
@@ -1666,6 +1695,12 @@ namespace CurvedPathGenertator {
             Handles.EndGUI();
         }
 
+        //=======================================================================================================================================================
+        // Draw node field on scene method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // A method that draws the output window when a node label is clicked
+        // Node label을 클릭 했을 때, 출력되는 윈도우를 그리는 메소드
+        //=======================================================================================================================================================
         private Vector3 DrawNodeFieldOnScene(Vector3 worldPos, string text, Color highlight) {
             Vector3 result = worldPos;
             Vector3 guiLoc = HandleUtility.WorldToGUIPointWithDepth(worldPos);
@@ -1691,19 +1726,32 @@ namespace CurvedPathGenertator {
             titleStyle.fontSize = 18;
             titleStyle.alignment = TextAnchor.MiddleCenter;
 
-
             Handles.BeginGUI();
             GUILayout.BeginArea(UIRect);
+
+            //===================================================================================================================================================
+            // Print title
+            // Title을 출력
+            //===================================================================================================================================================
             GUI.color = new Color(1f,1f,1f,0.6f);
             EditorStyles.label.normal.textColor = Color.white;
             EditorStyles.label.focused.textColor = highlight;
             EditorStyles.label.active.textColor = highlight;
             EditorStyles.label.hover.textColor = highlight;
-
             GUILayout.Label(text, titleStyle);
             GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // Show world postion of target node
+            // 제어하고자 하는 node의 월드 좌표를 보여줌  
+            //===================================================================================================================================================
             result = EditorGUILayout.Vector3Field("", worldPos, GUILayout.Width(UIRect.width));
             GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // Close window button
+            // 윈도우 닫기 버튼
+            //===================================================================================================================================================
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_Close"))) {
                 nodeListEditIndex = -1;
                 angleListEditIndex = -1;
@@ -1721,6 +1769,12 @@ namespace CurvedPathGenertator {
             return result;
         }
 
+        //=======================================================================================================================================================
+        // Draw angle field on scene method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // A method that draws the output window when a angle label is clicked
+        // Angle label을 클릭 했을 때, 출력되는 윈도우를 그리는 메소드
+        //=======================================================================================================================================================
         private Vector3 DrawAngleFieldOnScene(Vector3 worldPos, string text, Color highlight) {
             PathGenerator pathGenerator = target as PathGenerator;      // 조절할 PathGenerator
             if (pathGenerator.NodeList == null || pathGenerator.NodeList.Count < 2 ||
@@ -1752,19 +1806,31 @@ namespace CurvedPathGenertator {
             titleStyle.fontSize = 18;
             titleStyle.alignment = TextAnchor.MiddleCenter;
 
-
             Handles.BeginGUI();
             GUILayout.BeginArea(UIRect);
+            //===================================================================================================================================================
+            // Print title
+            // Title을 출력
+            //===================================================================================================================================================
             GUI.color = new Color(1f, 1f, 1f, 0.6f);
             EditorStyles.label.normal.textColor = Color.white;
             EditorStyles.label.focused.textColor = highlight;
             EditorStyles.label.active.textColor = highlight;
             EditorStyles.label.hover.textColor = highlight;
-
             GUILayout.Label(text, titleStyle);
             GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // Show world postion of target angle
+            // 제어하고자 하는 angle의 월드 좌표를 보여줌  
+            //===================================================================================================================================================
             result = EditorGUILayout.Vector3Field("", worldPos, GUILayout.Width(UIRect.width));
             GUILayout.Space(5);
+
+            //===================================================================================================================================================
+            // Button to move the target angle to the midpoint of two nodes
+            // target angle을 두 node의 중점으로 이동하는 버튼
+            //===================================================================================================================================================
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_Center"))) {
                 Vector3 prevPoint = pathGenerator.NodeList_World[angleListEditIndex];
                 Vector3 nextPoint = ( angleListEditIndex + 1 == pathGenerator.NodeList_World.Count ) ?
@@ -1780,6 +1846,11 @@ namespace CurvedPathGenertator {
                 SceneView.lastActiveSceneView.pivot = result;
                 return result;
             }
+
+            //===================================================================================================================================================
+            // Close window button
+            // 윈도우 닫기 버튼
+            //===================================================================================================================================================
             GUILayout.Space(15);
             if (GUILayout.Button(PathGeneratorGUILanguage.GetLocalText("PG_Close"))) {
                 nodeListEditIndex = -1;
@@ -1798,23 +1869,34 @@ namespace CurvedPathGenertator {
             return result;
         }
 
+        //=======================================================================================================================================================
+        // OnEnable method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // Methods executed when selected in the inspector window
+        // 인스펙터 창에서 선택 되었을 때 실행되는 메소드
+        //=======================================================================================================================================================
         public void OnEnable() {
-            PathGeneratorGUILanguage.InitLocalization();
-            isTopViewMode = false;
-            isShowEditorSetting = true;
+            PathGeneratorGUILanguage.InitLocalization();                    // Language setting
+            isTopViewMode = false;                                          // set none top view mode
+            isShowEditorSetting = true;                                     // show editor setting panel on scene view
         }
 
+        //=======================================================================================================================================================
+        // OnEnable method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // Methods executed when deselected in the inspector window
+        // 인스펙터 창에서 선택해제 되었을 때 실행되는 메소드
+        //=======================================================================================================================================================
         public void OnDisable() {
             try {
                 PathGenerator pathGenerator = target as PathGenerator;
-                pathGenerator.ResetTools();
-                if (isTopViewMode)
+                pathGenerator.ResetTools();                               // show handle
+                if (isTopViewMode)                                        // set none top view mode
                     TopViewButtonClick(false);
             } catch(SystemException e) {
                 e.ToString();
             }
         }
-
         #endregion
 
 
@@ -1910,6 +1992,12 @@ namespace CurvedPathGenertator {
             PathMesh.mesh = newMesh;
         }
 
+        //=======================================================================================================================================================
+        // Set material method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // ScrollingShader shader-based material creation according to set values
+        // 설정된 값에 따라 ScrollingShader셰이더 기반의 머터리얼 생성
+        //=======================================================================================================================================================
         public void SetMaterail() {
             PathGenerator pathGenerator = target as PathGenerator;
             if (!pathGenerator.CreateMeshFlag) return;
@@ -1917,7 +2005,7 @@ namespace CurvedPathGenertator {
             if (renderer == null) return;
 
             try {
-                Material newMat = new Material(Shader.Find("PathGenerator/ScrollingArrow"));
+                Material newMat = new Material(Shader.Find("PathGenerator/ScrollingShader"));
                 newMat.SetTexture("_MainTex", pathGenerator.LineTexture);
                 newMat.SetTextureScale("_MainTex", new Vector2(1f, pathGenerator.LineTiling));
                 newMat.SetFloat("_Speed", pathGenerator.LineSpeed);
@@ -1932,6 +2020,12 @@ namespace CurvedPathGenertator {
             }
         }
 
+        //=======================================================================================================================================================
+        // Delete path mesh method
+        //-------------------------------------------------------------------------------------------------------------------------------------------------------
+        // Method to delete the created path mesh
+        // 만들어진 path mesh를 삭제하는 메소드
+        //=======================================================================================================================================================
         public void DeletePathMesh() {
             PathGenerator pathGenerator = target as PathGenerator;
             MeshFilter PathMesh = pathGenerator.transform.GetComponent<MeshFilter>();
