@@ -1,4 +1,4 @@
-![Logo](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/Title_English.gif?raw=true)
+![Logo](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/Title_Main.gif?raw=true)
 
 
 
