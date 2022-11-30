@@ -366,7 +366,7 @@ namespace CurvedPathGenertator {
             key_text = "PF_H1_Info";
             ENG_TEXT.Add(key_text, "Movement info");
             KOR_TEXT.Add(key_text, "이동 정보");
-            JAP_TEXT.Add(key_text, "ム-ヴメントインフォメーション");
+            JAP_TEXT.Add(key_text, "移動情報");
 
             key_text = "PF_Info_Label";
             ENG_TEXT.Add(key_text, "Movement information for an object");
@@ -381,27 +381,27 @@ namespace CurvedPathGenertator {
             key_text = "PF_Info_Threshold";
             ENG_TEXT.Add(key_text, "Distance threshold");
             KOR_TEXT.Add(key_text, "거리 임계값");
-            JAP_TEXT.Add(key_text, "ディスタンス・スレシュホールド");
+            JAP_TEXT.Add(key_text, "距離臨界値");
 
             key_text = "PF_Info_Warning";
             ENG_TEXT.Add(key_text, "Too fast speed or too low a distance threshold can interfere with normal operation.");
             KOR_TEXT.Add(key_text, "너무 빠른 속도나 너무 낮은 거리 임계값은 정상적인 동작을 방해 할 수 있습니다.");
-            JAP_TEXT.Add(key_text, "高速すぎるか低すぎるディスタンス・スレシュホールドは、正常な動作を妨げる可能性があります。");
+            JAP_TEXT.Add(key_text, "早すぎるか、低すぎる距離臨界値は、正常な動作を妨げる可能性があります。。");
 
             key_text = "PF_Info_TurningSpeed";
             ENG_TEXT.Add(key_text, "Turning speed");
             KOR_TEXT.Add(key_text, "회전 속력");
-            JAP_TEXT.Add(key_text, "ターニングスピード");
+            JAP_TEXT.Add(key_text, "回転速力");
 
             key_text = "PF_Info_IsLoop";
             ENG_TEXT.Add(key_text, "Is loop");
             KOR_TEXT.Add(key_text, "반복 활성화");
-            JAP_TEXT.Add(key_text, "ルーピング・アクティベート");
+            JAP_TEXT.Add(key_text, "反復活性化");
 
             key_text = "PF_Info_IsMove";
             ENG_TEXT.Add(key_text, "Is move");
             KOR_TEXT.Add(key_text, "이동 활성화");
-            JAP_TEXT.Add(key_text, "ムーブメント・アクティベート");
+            JAP_TEXT.Add(key_text, "移動活性化");
 
             key_text = "PF_Info_Path";
             ENG_TEXT.Add(key_text, "Path");
@@ -416,12 +416,12 @@ namespace CurvedPathGenertator {
             key_text = "PF_Events_Label";
             ENG_TEXT.Add(key_text, "Execute a method when a route is completed");
             KOR_TEXT.Add(key_text, "경로를 완주 했을 때 메소드 실행");
-            JAP_TEXT.Add(key_text, "ルートが完了したときにメソッドを実行する");
+            JAP_TEXT.Add(key_text, "パスを完走したときのメソッド実行");
 
             key_text = "PF_Events_endEventLabel";
             ENG_TEXT.Add(key_text, "Execute a methods");
             KOR_TEXT.Add(key_text, "메소드 실행");
-            JAP_TEXT.Add(key_text, "メソッドを実行する");
+            JAP_TEXT.Add(key_text, "メソッドを実行");
 
 
         }
