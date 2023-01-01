@@ -20,7 +20,7 @@
 
 **🗺 유니티 곡선 경로 생성기 V 2.0**
 
-아래에 한국어 번역이 있습니다. (There is an Korean translation at the bottom.)
+아래에 [한국어 번역](https://github.com/KimYC1223/UnityPathGenerator#-%ED%8C%A8%EC%B9%98%EB%85%B8%ED%8A%B8--%EC%97%85%EB%8D%B0%EC%9D%B4%ED%8A%B8-v-200-)이 있습니다. (There is an [Korean translation](https://github.com/KimYC1223/UnityPathGenerator#-%ED%8C%A8%EC%B9%98%EB%85%B8%ED%8A%B8--%EC%97%85%EB%8D%B0%EC%9D%B4%ED%8A%B8-v-200-) at the bottom.)
 
 <br><br>
 
@@ -153,15 +153,15 @@ So let's get started.
 
 However, the following must be observed.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.PNG?raw=true)
 
 - The files ```PathFollowerGUI.cs```, ```PathGeneratorGUI.cs```, and ```PathGeneratorGUILanguage.cs``` must be imported into the project, and they should be in ```Assets/Editor/PathGenerator```.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.PNG?raw=true)
 
 - The files ```PathFollower icon.PNG```, ```PathFollowerGUI icon.PNG```, ```PathGenerator icon.PNG```, ```PathGeneratorGUI icon.PNG```, ```PathGeneratorGUILanguage icon. PNG```, ```PG_Anchor.PNG```, ```PG_End.PNG```, ```PG_Handler.PNG```, ```PG_Node.PNG```, and ```PG_Start.PNG``` must be imported into the project, and they should be in ```Assets/Gizmos/PathGenerator```.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.PNG?raw=true)
 
 - The files ```PathFollowerScriptImg.PNG``` and ```PathGeneratorScriptImg.PNG``` must be imported into the project, and they should be in ```Assets/Resources\PathGenerator\Logo```
 
@@ -186,7 +186,7 @@ This object becomes a curved path that can be followed.
 
 Add ```Path Generator``` component to this object.
 
-![figure8](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.png?raw=true)
+![figure8](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.PNG?raw=true)
 
 ```Path Generator``` is largely divided into 6 parts.
 
@@ -209,11 +209,13 @@ Add ```Path Generator``` component to this object.
 
 The part that determines the nature of the Path.
 
+![figure22](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.PNG?raw=true)
+
 ##### 3-2-2-1-1. ```Path Density```
 
 ``Path density```` determines how accurately the curve is drawn.
  
-![figure22](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.gif?raw=true)
+ ![figure11](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure11.gif?raw=true)
 
 The higher the number, the closer the curve is to the ideal, **but too high and the object may behave erratically.**
 
@@ -239,7 +241,7 @@ Determines whether to connect the last node and the last node.
 
 Shows a list of nodes that determine the origin, waypoint, and destination
 
-![figure23](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.gif?raw=true)
+![figure23](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.PNG?raw=true)
 
 ##### 3-2-2-2-1. ```Create node```
 
@@ -259,7 +261,7 @@ Edit the selected node.
 
 Shows a list of angles that determine the shape of the curve.
 
-![figure24](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.gif?raw=true)
+![figure24](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.PNG?raw=true)
 
 ##### 3-2-2-3-1. ```Edit Angle``` : Edit Button
 
@@ -271,7 +273,7 @@ Edit the selected angle.
 
 All nodes and angles can be collectively controlled.
 
-![figure33](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.gif?raw=true)
+![figure33](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.PNG?raw=true)
 
 ##### 3-2-2-4-1. ``` X / Y / Z to 0```
 
@@ -295,7 +297,7 @@ You can visualize the created curve as shown in the figure below.
 
 > There is a bug where the rendering is not displayed normally when the curved path is sharply bent.
 
-![figure25](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.gif?raw=true)
+![figure25](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.PNG?raw=true)
 
 ##### 3-2-2-5-1. ```Generate path mesh in runtime```
 
@@ -307,17 +309,17 @@ Texture of the mesh of the lines to be displayed.
 
 If the texture has a pattern like the picture below, it is good to express the flow.
 
-![figure27](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.gif?raw=true)
+<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.png?raw=true" width="256px">
 
 > Demo textures located at ```/Assets/PathGenerator/DemoScene/Textures/```
 
 If you want the texture to repeat, you must set the ```Wrap Mode``` to ```Repeat```.
 
-![figure26](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.gif?raw=true)
+![figure26](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.png?raw=true)
 
 Also, if you want to see the Material repeated in the Scene,
 
-![figure28](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.gif?raw=true)
+![figure28](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.png?raw=true)
 
 You need to turn on ```Animated Materials```.
 
@@ -347,7 +349,7 @@ Specifying the render queue order of materials
 
 Editor settings for easy curve control
 
-![figure29](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.gif?raw=true)
+![figure29](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.PNG?raw=true)
 
 ##### 3-2-2-6-1. ```Normal mode```
 
@@ -413,7 +415,7 @@ This object becomes the object following the path created in 3-2.
 
 Add a "Path Follower" component to that object.
 
-![figure32](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.png?raw=true)
+![figure32](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.PNG?raw=true)
 
 ```Path Generator``` is largely divided into two parts.
 
@@ -565,7 +567,7 @@ Thanks for read! check out [my blog](https://kimyc1223.github.io/) too !
 
 **🗺 Unity Curved Path Generator V 2.0**
 
-There is an English translation at the top. (상단에 영어 번역이 있습니다.)
+There is an [English translation](https://github.com/KimYC1223/UnityPathGenerator#-path-note--update-v-200-) at the top. (상단에 [영어 번역](https://github.com/KimYC1223/UnityPathGenerator#-path-note--update-v-200-)이 있습니다.)
 
 <br><br>
 
@@ -710,21 +712,21 @@ Unity 버전 : 2019.4.1f 이상
 
 ## 🔶 3-1 . 패키지 임포트
 
-3-1-1 . [최신의 release된 unity package](https://github.com/KimYC1223/UnityPathGenerator/releases/tag/1.0)를 다운로드 하거나, 이 repo를 다운받으면 된다. 
+3-1-1 . [최신의 release된 unity package](https://github.com/KimYC1223/UnityPathGenerator/releases/tag/1.0)를 다운로드 하거나, [이 repo]((https://github.com/KimYC1223/UnityPathGenerator).)를 다운받으면 된다. 
 
 3-1-2. 유니티 패키지를 임포트한다.
 
 단,다음과 같은 사항을 반드시 지켜야한다.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.PNG?raw=true)
 
 - ```PathFollowerGUI.cs```, ```PathGeneratorGUI.cs```, ```PathGeneratorGUILanguage.cs```라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Editor/PathGenerator``` 라는 폴더에 있어야 한다.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.PNG?raw=true)
 
 - ```PathFollower icon.PNG```, ```PathFollowerGUI icon.PNG```, ```PathGenerator icon.PNG```, ```PathGeneratorGUI icon.PNG```, ```PathGeneratorGUILanguage icon.PNG```, ```PG_Anchor.PNG```, ```PG_End.PNG```, ```PG_Handler.PNG```, ```PG_Node.PNG```, ```PG_Start.PNG```라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Gizmos/PathGenerator``` 라는 폴더에 있어야 한다.
 
-![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.PNG?raw=true)
 
 - ```PathFollowerScriptImg.PNG```, ```PathGeneratorScriptImg.PNG``` 라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Resources\PathGenerator\Logo``` 라는 폴더에 있어야 한다.
 
@@ -749,7 +751,7 @@ Scene에 빈 게임 개체를 만든다. (그리고 "Path"로 이름을 바꾼�
 
 이 개체에 ```Path Generator``` 컴포넌트 추가한다.
 
-![figure8](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.png?raw=true)
+![figure8](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.PNG?raw=true)
 
 ```Path Generator```는 크게 6가지 부분으로 나뉜다.
 
@@ -772,11 +774,13 @@ Scene에 빈 게임 개체를 만든다. (그리고 "Path"로 이름을 바꾼�
 
 Path의​	성질을 결정하는 부분.
 
+![figure22](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.PNG?raw=true)
+
 ##### 3-2-2-1-1. ```Path Density```
 
 ```Path density```는 곡선을 얼마나 정확하게 그릴지 결정한다.
  
-![figure22](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.gif?raw=true)
+![figure11](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure11.gif?raw=true)
 
 숫자가 높을수록 이상적인 곡선에 가깝지만 **너무 높으면 개체가 비정상적으로 작동할 수 있다.**
 
@@ -802,7 +806,7 @@ Path의​	성질을 결정하는 부분.
 
 출발지, 경유지, 도착지를 결정하는 노드 리스트를 보여준다
 
-![figure23](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.gif?raw=true)
+![figure23](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.PNG?raw=true)
 
 ##### 3-2-2-2-1. ```Create node```
 
@@ -822,7 +826,7 @@ Path의​	성질을 결정하는 부분.
 
 곡선의 모양을 결정하는 앵글 리스트를 보여준다.
 
-![figure24](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.gif?raw=true)
+![figure24](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.PNG?raw=true)
 
 ##### 3-2-2-3-1. ```Edit Angle``` : Edit 버튼
 
@@ -834,7 +838,7 @@ Path의​	성질을 결정하는 부분.
 
 모든 노드와 앵글을 일괄적으로 제어 할 수 있다.
 
-![figure33](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.gif?raw=true)
+![figure33](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.PNG?raw=true)
 
 ##### 3-2-2-4-1. ```X/Y/Z to 0```
 
@@ -858,7 +862,7 @@ Path의​	성질을 결정하는 부분.
 
 > 곡선 경로가 급격히 꺾일 경우, 렌더링이 정상적으로 표현되지 않는 버그가 있다.
 
-![figure25](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.gif?raw=true)
+![figure25](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.PNG?raw=true)
 
 ##### 3-2-2-5-1. ```Generate path mesh in runtime```
 
@@ -870,17 +874,17 @@ Path의​	성질을 결정하는 부분.
 
 Texture가 아래 그림처럼 패턴을 가지고 있을 경우, 흐름을 표현하기 좋다.
 
-![figure27](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.gif?raw=true)
+<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.PNG?raw=true" width="256px">
 
 > ```/Assets/PathGenerator/DemoScene/Textures/```에 위치한 데모용 텍스처
 
 텍스처가 반복되길 원한다면, 반드시 ```Wrap Mode```를 ```Repeat```로 설정해야한다.
 
-![figure26](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.gif?raw=true)
+![figure26](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.png?raw=true)
 
 또한, Scene에서도 해당 Material이 반복되는것을 보고싶다면
 
-![figure28](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.gif?raw=true)
+![figure28](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.png?raw=true)
 
 ```Animated Materials```를 켜주어야 한다.
 
@@ -910,7 +914,7 @@ Material의 render queue 순서 지정
 
 곡선을 쉽게 제어 할 수 있는 에디터 설정
 
-![figure29](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.gif?raw=true)
+![figure29](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.PNG?raw=true)
 
 ##### 3-2-2-6-1. ```Normal mode```
 
@@ -977,7 +981,7 @@ Scene을 위에서 내려다보는 Top view 모드로 전환 할 수 있다.
 
 그 객체에 "Path Follower" 컴포넌트를 추가한다.
 
-![figure32](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.png?raw=true)
+![figure32](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.PNG?raw=true)
 
 ```Path Generator```는 크게 2가지 부분으로 나뉜다.
 
