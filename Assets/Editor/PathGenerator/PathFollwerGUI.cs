@@ -33,7 +33,6 @@ namespace CurvedPathGenertator {
         public GUIStyle BoldText;                                                       // GUI style : BoldText
         #endregion
 
-
         #region PathFollower_InspectorUI_Main
         //=======================================================================================================================================================
         // OnSceneGUI method

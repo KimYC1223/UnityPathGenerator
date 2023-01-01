@@ -77,7 +77,10 @@ namespace CurvedPathGenertator {
         // 속도와 방향 설정 후 거리 계산
         //=============================================================================================================================
         public void FixedUpdate() {
-            if (!isMove) return;
+            if (!isMove) {
+                targetRigidbody.velocity = Vector3.zero;
+                return;
+            }
 
             if (path == null) {
                 isMove = false; checkFlag = false;

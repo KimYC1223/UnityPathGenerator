@@ -40,8 +40,8 @@ namespace CurvedPathGenertator {
         //=================================================================================================================================================================
         static public void InitLocalization() {
             string key_text;
-            //if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
-            //    return;
+            if (ENG_TEXT != null && KOR_TEXT != null && JAP_TEXT != null)
+                return;
 
             ENG_TEXT = new Dictionary<string, string>();
             KOR_TEXT = new Dictionary<string, string>();
@@ -422,8 +422,6 @@ namespace CurvedPathGenertator {
             ENG_TEXT.Add(key_text, "Execute a methods");
             KOR_TEXT.Add(key_text, "메소드 실행");
             JAP_TEXT.Add(key_text, "メソッドを実行");
-
-
         }
 
         //=================================================================================================================================================================
