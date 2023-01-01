@@ -874,7 +874,7 @@ Path의​	성질을 결정하는 부분.
 
 Texture가 아래 그림처럼 패턴을 가지고 있을 경우, 흐름을 표현하기 좋다.
 
-<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.PNG?raw=true" width="256px">
+<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.png?raw=true" width="256px">
 
 > ```/Assets/PathGenerator/DemoScene/Textures/```에 위치한 데모용 텍스처
 
