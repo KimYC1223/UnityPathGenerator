@@ -4,7 +4,7 @@
 
 <br>
 
-# 📌 Path Note ( Update V 2.0 )
+# 📌 Path Note ( Update V 2.0.0 )
 
 - Now use gizmo instead of prefab to edit path.
 - You can easily control the path through the custom editor.
@@ -153,15 +153,15 @@ So let's get started.
 
 However, the following must be observed.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
 
 - The files ```PathFollowerGUI.cs```, ```PathGeneratorGUI.cs```, and ```PathGeneratorGUILanguage.cs``` must be imported into the project, and they should be in ```Assets/Editor/PathGenerator```.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
 
 - The files ```PathFollower icon.PNG```, ```PathFollowerGUI icon.PNG```, ```PathGenerator icon.PNG```, ```PathGeneratorGUI icon.PNG```, ```PathGeneratorGUILanguage icon. PNG```, ```PG_Anchor.PNG```, ```PG_End.PNG```, ```PG_Handler.PNG```, ```PG_Node.PNG```, and ```PG_Start.PNG``` must be imported into the project, and they should be in ```Assets/Gizmos/PathGenerator```.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
 
 - The files ```PathFollowerScriptImg.PNG``` and ```PathGeneratorScriptImg.PNG``` must be imported into the project, and they should be in ```Assets/Resources\PathGenerator\Logo```
 
@@ -549,7 +549,7 @@ Thanks for read! check out [my blog](https://kimyc1223.github.io/) too !
 
 <br>
 
-# 📌 패치노트 ( 업데이트 V 2.0 )
+# 📌 패치노트 ( 업데이트 V 2.0.0 )
 
 - Path를 수정하기 위해 Prefab을 사용하지 않고, Gizmo를 사용합니다.
 - Custom Editor를 통해 손쉽게 Path를 제어 할 수 있습니다.
@@ -716,15 +716,15 @@ Unity 버전 : 2019.4.1f 이상
 
 단,다음과 같은 사항을 반드시 지켜야한다.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.png?raw=true)
 
 - ```PathFollowerGUI.cs```, ```PathGeneratorGUI.cs```, ```PathGeneratorGUILanguage.cs```라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Editor/PathGenerator``` 라는 폴더에 있어야 한다.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.png?raw=true)
 
 - ```PathFollower icon.PNG```, ```PathFollowerGUI icon.PNG```, ```PathGenerator icon.PNG```, ```PathGeneratorGUI icon.PNG```, ```PathGeneratorGUILanguage icon.PNG```, ```PG_Anchor.PNG```, ```PG_End.PNG```, ```PG_Handler.PNG```, ```PG_Node.PNG```, ```PG_Start.PNG```라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Gizmos/PathGenerator``` 라는 폴더에 있어야 한다.
 
-![]((https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
+![](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.png?raw=true)
 
 - ```PathFollowerScriptImg.PNG```, ```PathGeneratorScriptImg.PNG``` 라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, ```Assets/Resources\PathGenerator\Logo``` 라는 폴더에 있어야 한다.
 
