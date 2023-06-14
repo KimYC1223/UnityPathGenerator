@@ -4,7 +4,7 @@
 
 <br>
 
-# 📌 Path Note ( Update V 2.0.0 )
+# 📌 Patch Note ( Update V 2.0.0 )
 
 - Now use gizmo instead of prefab to edit path.
 - You can easily control the path through the custom editor.
