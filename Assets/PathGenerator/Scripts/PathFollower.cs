@@ -1,251 +1,350 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-//=====================================================================================================================================
-/*      ,------.   ,---. ,--------.,--.  ,--.     ,----.   ,------.,--.  ,--.,------.,------.   ,---. ,--------. ,-----. ,------.  
-        |  .--. ' /  O  \'--.  .--'|  '--'  |    '  .-./   |  .---'|  ,'.|  ||  .---'|  .--. ' /  O  \'--.  .--''  .-.  '|  .--. ' 
-        |  '--' ||  .-.  |  |  |   |  .--.  |    |  | .---.|  `--, |  |' '  ||  `--, |  '--'.'|  .-.  |  |  |   |  | |  ||  '--'.' 
-        |  | --' |  | |  |  |  |   |  |  |  |    '  '--'  ||  `---.|  | `   ||  `---.|  |\  \ |  | |  |  |  |   '  '-'  '|  |\  \  
-        `--'     `--' `--'  `--'   `--'  `--'     `------' `------'`--'  `--'`------'`--' '--'`--' `--'  `--'    `-----' `--' '--'  */
-//=====================================================================================================================================
+﻿//=========================================================================================================================================
+//      ,------.   ,---. ,--------.,--.  ,--.     ,----.   ,------.,--.  ,--.,------.,------.   ,---. ,--------. ,-----. ,------.
+//      |  .--. ' /  O  \'--.  .--'|  '--'  |    '  .-./   |  .---'|  ,'.|  ||  .---'|  .--. ' /  O  \'--.  .--''  .-.  '|  .--. '
+//      |  '--' ||  .-.  |  |  |   |  .--.  |    |  | .---.|  `--, |  |' '  ||  `--, |  '--'.'|  .-.  |  |  |   |  | |  ||  '--'.'
+//      |  | --' |  | |  |  |  |   |  |  |  |    '  '--'  ||  `---.|  | `   ||  `---.|  |\  \ |  | |  |  |  |   '  '-'  '|  |\  \
+//      `--'     `--' `--'  `--'   `--'  `--'     `------' `------'`--'  `--'`------'`--' '--'`--' `--'  `--'    `-----' `--' '--'
+//
+//=========================================================================================================================================
 //
 //  PATH FOLLWER CLASS
 //
 //  Script to follow the path created by "Path Generator" class
 //  Path Generator가 만든 Path를 따라가는 기능
 //
-//-------------------------------------------------------------------------------------------------------------------------------------
-//  2022.11.29 _ KimYC1223
-//=====================================================================================================================================
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//  2023.11.04 _ KimYC1223
+//=========================================================================================================================================
+using UnityEngine;
+
 #region PathFollower
-namespace CurvedPathGenertator {
 
+namespace CurvedPathGenertator
+{
     #region PathFollwer_RequireComponents
+
+    /// <summary>
+    /// Script to follow the path created by <see cref="PathGenerator" /> class
+    /// </summary>
     [RequireComponent(typeof(Rigidbody))]
-    #endregion
-
-    #region PathFollower_Class
-    public class PathFollower : MonoBehaviour {
-
+    public class PathFollower : MonoBehaviour
+    {
         #region PathFollower_Variables
-        [System.Serializable]
-        public class EndEvent : UnityEngine.Events.UnityEvent { }
 
-        [SerializeField]
-        public EndEvent endEvent;                   // method to run when this is done moving
+        /// <summary>
+        /// method to run when this is done moving
+        /// </summary>
+        public UnityEngine.Events.UnityEvent EndEvent;
 
-        public PathGenerator path;                  // choose the path to move     
-        public float speed = 100f;                  // move speed
-        public float distanceThreshold = 0.2f;      // distance threshold
-        public float turningSpeed = 10f;            // rotation speed 
-        public bool isLoop = false;                 // does it move repeatedly?
-        public bool isMove = true;                  // is this moving now?
-        public bool isEndEventEnable = false;       // is End event enable?
+        /// <summary>
+        /// choose the path to move
+        /// </summary>
+        public PathGenerator Generator;
 
-        private bool checkFlag = false;             // flag variable
-        private Rigidbody targetRigidbody;          // the rigidbody of the object to move
-        private GameObject target;                  // object to move;
-        private Vector3 nextPath;                   // the direction the obejct will move
-        private int pathIndex = 1;                  // the path index the object will move
-        #endregion
+        /// <summary>
+        /// move speed
+        /// </summary>
+        public float Speed = 100f;
+
+        /// <summary>
+        /// distance threshold
+        /// </summary>
+        public float DistanceThreshold = 0.2f;
+
+        /// <summary>
+        /// rotation speed
+        /// </summary>
+        public float TurningSpeed = 10f;
+
+        /// <summary>
+        /// does it move repeatedly?
+        /// </summary>
+        public bool IsLoop = false;
+
+        /// <summary>
+        /// is this moving now?
+        /// </summary>
+        public bool IsMove = true;
+
+        /// <summary>
+        /// is End event enable?
+        /// </summary>
+        public bool IsEndEventEnable = false;
+
+        /// <summary>
+        /// flag variable
+        /// </summary>
+        private bool checkFlag = false;
+
+        /// <summary>
+        /// the rigidbody of the object to move
+        /// </summary>
+        private Rigidbody targetRigidbody;
+
+        /// <summary>
+        /// object to move
+        /// </summary>
+        private GameObject target;
+
+        /// <summary>
+        /// the destination which the object will move
+        /// </summary>
+        private Vector3 nextPath;
+
+        /// <summary>
+        /// the path index the object will move
+        /// </summary>
+        private int pathIndex = 1;
+
+        #endregion PathFollower_Variables
 
         #region PathFollower_StartMethod
-        //=============================================================================================================================
+
+        //=================================================================================================================================
         // Start method
-        //-----------------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------------------------------
         // init variable & position
         // 각종 변수와 position 초기화
-        //=============================================================================================================================
-        void Start() {
+        //=================================================================================================================================
+        /// <summary>
+        /// init variable & position
+        /// </summary>
+        private void Start()
+        {
             targetRigidbody = GetComponent<Rigidbody>();
 
-            if (path != null) { 
+            if ( Generator != null )
+            {
                 target = this.gameObject;
-                nextPath = path.PathList[1];
-                this.transform.position = path.PathList[0];
+                nextPath = Generator.PathList[1];
+                this.transform.position = Generator.PathList[0];
             }
         }
-        #endregion
+
+        #endregion PathFollower_StartMethod
 
         #region PathFollower_FixedUpdateMethod
-        //=============================================================================================================================
+
+        //=================================================================================================================================
         // Fixed update method
-        //-----------------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------------------------------
         // set velocity & direction, and calculate distance
         // 속도와 방향 설정 후 거리 계산
-        //=============================================================================================================================
-        public void FixedUpdate() {
-            if (!isMove) {
+        //=================================================================================================================================
+        /// <summary>
+        /// set velocity & direction, and calculate distance
+        /// </summary>
+        public void FixedUpdate()
+        {
+            //=============================================================================================================================
+            //  If it is not moving, stop object and return
+            //  움직이지 않는다면, 물체를 멈추고 종료
+            //=============================================================================================================================
+            if ( !IsMove )
+            {
                 targetRigidbody.velocity = Vector3.zero;
                 return;
             }
 
-            if (path == null) {
-                isMove = false; checkFlag = false;
-                Debug.LogError("no path\n경로가 없음");
+            if ( Generator == null )
+            {
+                IsMove = false; checkFlag = false;
+                Debug.LogError("no path");
                 return;
             }
 
-            if(!checkFlag) {
+            if ( !checkFlag )
+            {
                 checkFlag = true;
                 target = this.gameObject;
-                nextPath = path.PathList[1];
-                this.transform.position = path.PathList[0];
+                nextPath = Generator.PathList[1];
+                this.transform.position = Generator.PathList[0];
             }
 
-            //=========================================================================================================================
-            //  If it is not moving, stop object and return
-            //  움직이지 않는다면, 물체를 멈추고 종료
-            //=========================================================================================================================
-            if (!isMove) {
-                targetRigidbody.velocity = new Vector3(0, 0, 0);
-                return;
-            }
-
-            //=========================================================================================================================
+            //=============================================================================================================================
             // Function to make objects look at the next path
             // 물체가 다음 Path를 바라보게하는 기능
-            //=========================================================================================================================
+            //=============================================================================================================================
             Vector3 offset = nextPath - target.transform.position;
             offset.Normalize();
             Quaternion q = Quaternion.LookRotation(offset);
             targetRigidbody.rotation =
-                Quaternion.Slerp(targetRigidbody.rotation,
-                                            q, turningSpeed * Time.deltaTime);
+                Quaternion.Slerp(targetRigidbody.rotation, q, TurningSpeed * Time.deltaTime);
 
-            //=========================================================================================================================
+            //=============================================================================================================================
             // Function to make objects follow a path
             // 물체가 path를 따라가게 하는 기능
-            //=========================================================================================================================
+            //=============================================================================================================================
             offset.Normalize();
-            targetRigidbody.velocity = offset * speed * Time.deltaTime;
+            targetRigidbody.velocity = Speed * Time.deltaTime * offset;
 
             // calculate distance between object and next path
             // 물체와 next path 경로 사이의 거리 계산
             float Distance = Vector3.Distance(nextPath, target.transform.position);
 
-            //=========================================================================================================================
+            //=============================================================================================================================
             // If it is close enough to the next path
             // next path에 충분히 가까워졌을 경우
-            //=========================================================================================================================
-            if (Distance < distanceThreshold) {
-
-                //=====================================================================================================================
+            //=============================================================================================================================
+            if ( Distance < DistanceThreshold )
+            {
+                //=========================================================================================================================
                 // If the end of the path list is not reached, set the next path by increase path Index
                 // path 리스트의 끝에 도달하지 못했다면, path Index ++ 를 통해 next path 설정
-                //=====================================================================================================================
-                if (pathIndex + 1 < path.PathList.Count) {
-                    nextPath = path.PathList[++pathIndex];
-                } else {
-                    //=================================================================================================================
+                //=========================================================================================================================
+                if ( pathIndex + 1 < Generator.PathList.Count )
+                {
+                    nextPath = Generator.PathList[++pathIndex];
+                }
+                else
+                {
+                    //=====================================================================================================================
                     // If the object reached end of the path list,
                     // path 리스트 끝에 도달했다면, 즉, 최종 목적지에 도달했을때
-                    //=================================================================================================================
-                    if (path.isClosed) {
-                        //=============================================================================================================
+                    //=====================================================================================================================
+                    if ( Generator.IsClosed )
+                    {
+                        //=================================================================================================================
                         // If current path is closed path, back to zero of the path list
                         // 현재 path가 닫힌 경로이면, 다시 pathList[0]을 향해 전진
-                        //=============================================================================================================
-                        if (isLoop) {
+                        //=================================================================================================================
+                        if ( IsLoop )
+                        {
                             // If repeatEvent isn't null, run method.
                             // repeatEvent null이 아니면, method를 실행
-                            if (endEvent != null && isEndEventEnable) {
-                                endEvent.Invoke();
+                            if ( EndEvent != null && IsEndEventEnable )
+                            {
+                                EndEvent.Invoke();
                             }
-                            nextPath = path.PathList[0];
+                            nextPath = Generator.PathList[0];
                             pathIndex = 0;
 
-                        //============================================================================================================
-                        // If object move once, Stop move and if endEvent isn't null, run method.
-                        // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
-                        //============================================================================================================
-                        } else {
-                            StopFollow();
-                            if (endEvent != null && isEndEventEnable) {
-                                endEvent.Invoke();
-                            }
-                        }
-                    } else {
-                        //=============================================================================================================
-                        // If current path is open path,
-                        // 현재 path가 열린 경로이면,
-                        //=============================================================================================================
-                        if (isLoop) {
-                            //=========================================================================================================
-                            // and object move repeatedly reinit position & value;
-                            // 그리고 물체가 반복적으로 움직인다면, position과 변수 다시 초기화
-                            //=========================================================================================================
-                            nextPath = path.PathList[1];
-                            pathIndex = 1;
-                            this.transform.position = path.PathList[0];
-                            target.transform.LookAt(path.PathList[1]);
-                            // If repeatEvent isn't null, run method.
-                            // repeatEvent null이 아니면, method를 실행
-                            if (endEvent != null && isEndEventEnable) {
-                                endEvent.Invoke();
-                            }
-                        } else {
-                            //========================================================================================================
+                            //=============================================================================================================
                             // If object move once, Stop move and if endEvent isn't null, run method.
                             // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
-                            //========================================================================================================
+                            //=============================================================================================================
+                        }
+                        else
+                        {
                             StopFollow();
-                            if (endEvent != null && isEndEventEnable) {
-                                endEvent.Invoke();
+                            if ( EndEvent != null && IsEndEventEnable )
+                            {
+                                EndEvent.Invoke();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //=================================================================================================================
+                        // If current path is open path,
+                        // 현재 path가 열린 경로이면,
+                        //=================================================================================================================
+                        if ( IsLoop )
+                        {
+                            //=============================================================================================================
+                            // and object move repeatedly reinit position & value;
+                            // 그리고 물체가 반복적으로 움직인다면, position과 변수 다시 초기화
+                            //=============================================================================================================
+                            nextPath = Generator.PathList[1];
+                            pathIndex = 1;
+                            this.transform.position = Generator.PathList[0];
+                            target.transform.LookAt(Generator.PathList[1]);
+                            // If repeatEvent isn't null, run method.
+                            // repeatEvent null이 아니면, method를 실행
+                            if ( EndEvent != null && IsEndEventEnable )
+                            {
+                                EndEvent.Invoke();
+                            }
+                        }
+                        else
+                        {
+                            //============================================================================================================
+                            // If object move once, Stop move and if endEvent isn't null, run method.
+                            // 물체가 한번만 움직이면 멈추고, endEvent!=null이 아니면, method를 실행
+                            //============================================================================================================
+                            StopFollow();
+                            if ( EndEvent != null && IsEndEventEnable )
+                            {
+                                EndEvent.Invoke();
                             }
                         }
                     }
                 }
             }
         }
-        #endregion
+
+        #endregion PathFollower_FixedUpdateMethod
 
         #region PathFollower_GetPassedLengthMethod
-        //=============================================================================================================================
+
+        //=================================================================================================================================
         // Get Passed Length method
-        //-----------------------------------------------------------------------------------------------------------------------------
-        // Method that returns the length of the path traveled so far
+        //---------------------------------------------------------------------------------------------------------------------------------
+        // Method that returns the length of the path traveled
         // 지금까지 지나온 경로의 길이를 반환하는 메소드
-        //=============================================================================================================================
-        public float GetPassedLength() {
-            if (path == null) return -1;
+        //=================================================================================================================================
+        /// <summary>
+        /// Method that returns the length of the path traveled
+        /// </summary>
+        /// <returns>lengh of path traveled</returns>
+        public float GetPassedLength()
+        {
+            if ( Generator == null ) return -1;
 
-            if (pathIndex == 1)
-                return ( path.PathList[0] - this.transform.position ).magnitude;
-
-            else if (pathIndex >= path.PathList.Count)
-                return path.GetLength();
-
-            else return path.pathLengths[pathIndex - 2] +
-                          ( path.PathList[pathIndex - 1] - this.transform.position ).magnitude;
+            if ( pathIndex == 1 )
+            {
+                return ( Generator.PathList[0] - this.transform.position ).magnitude;
+            }
+            else if ( pathIndex >= Generator.PathList.Count )
+            {
+                return Generator.GetLength();
+            }
+            else
+            {
+                return Generator.PathLengths[pathIndex - 2] + ( Generator.PathList[pathIndex - 1] - this.transform.position ).magnitude;
+            }
         }
-        #endregion
+
+        #endregion PathFollower_GetPassedLengthMethod
 
         #region PathFollower_MovementMethod
-        //=============================================================================================================================
+
+        //=================================================================================================================================
         // Stop Follow method
-        //-----------------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------------------------------
         // stop move by set isMove false
         // 정지
-        //=============================================================================================================================
-        public void StopFollow() {
-            isMove = false;
+        //=================================================================================================================================
+        /// <summary>
+        /// stop following path
+        /// </summary>
+        public void StopFollow()
+        {
+            IsMove = false;
         }
 
-        //=============================================================================================================================
+        //=================================================================================================================================
         // Start Follow method
-        //-----------------------------------------------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------------------------------
         // Start move by set isMove true
         // 움직임
-        //=============================================================================================================================
-        public void StartFollow() {
-            if (path == null) return;
-            isMove = true;
+        //=================================================================================================================================
+        /// <summary>
+        /// start following path
+        /// </summary>
+        public void StartFollow()
+        {
+            if ( Generator == null )
+            {
+                return;
+            }
+            IsMove = true;
         }
-        #endregion
+
+        #endregion PathFollower_MovementMethod
     }
-    #endregion
+
+    #endregion PathFollwer_RequireComponents
 }
-#endregion
+
+#endregion PathFollower
