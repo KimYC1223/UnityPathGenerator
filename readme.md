@@ -4,13 +4,10 @@
 
 <br>
 
-# 📌 Patch Note ( Update V 2.0.0 )
+# 📌 Patch Note ( Update V 2.0.1 / Nov 05 2023 )
 
-- Now use gizmo instead of prefab to edit path.
-- You can easily control the path through the custom editor.
-- A path mesh generation function has been added to visualize the implemented path.
-- Added Korean readme.
-- Added Japanese translation.
+- Tested on the latest Unity LTS version (2022.3.12f1).
+- The entire code style has been modified to fit code conventions.
 
 <br>
 
@@ -551,13 +548,10 @@ Thanks for read! check out [my blog](https://kimyc1223.github.io/) too !
 
 <br>
 
-# 📌 패치노트 ( 업데이트 V 2.0.0 )
+# 📌 패치노트 ( 업데이트 V 2.0.1 / 2023 11 05 )
 
-- Path를 수정하기 위해 Prefab을 사용하지 않고, Gizmo를 사용합니다.
-- Custom Editor를 통해 손쉽게 Path를 제어 할 수 있습니다.
-- 구현한 Path를 가시화하기 위한 path mesh 생성 기능을 추가하였습니다.
-- 한국어 readme를 추가하였습니다.
-- 일본어 번역을 추가하였습니다.
+- 최신 Unity LTS 버전 (2022.3.12f)에서 테스트를 진행했습니다.
+- 전체 코드 스타일을 코드 컨벤션에 맞게 수정했습니다.
 
 <br>
 
