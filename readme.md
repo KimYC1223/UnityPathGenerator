@@ -4,10 +4,11 @@
 
 <br>
 
-# 📌 Patch Note ( Update V 2.0.1 / Nov 05 2023 )
+# 📌 Patch Note ( Update V 2.0.2 / Nov 08 2023 )
 
-- Tested on the latest Unity LTS version (2022.3.12f1).
-- The entire code style has been modified to fit code conventions.
+- Change namespace (`PathGenerator` > `CurvedPathGenerator`)
+- Edit asset hierarchy
+- Minor bug fixes
 
 <br>
 
@@ -548,10 +549,11 @@ Thanks for read! check out [my blog](https://kimyc1223.github.io/) too !
 
 <br>
 
-# 📌 패치노트 ( 업데이트 V 2.0.1 / 2023 11 05 )
+# 📌 패치노트 ( 업데이트 V 2.0.2 / 2023 11 08 )
 
-- 최신 Unity LTS 버전 (2022.3.12f)에서 테스트를 진행했습니다.
-- 전체 코드 스타일을 코드 컨벤션에 맞게 수정했습니다.
+- 네임스페이스 변경 ( `PathGenerator` > `CurvedPathGenerator` )
+- 에셋 하이어라키 수정
+- 자잘한 버그 수정
 
 <br>
 
