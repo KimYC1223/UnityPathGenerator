@@ -15,12 +15,11 @@
 
 using System.Collections.Generic;
 using System;
-using AssetStoreTools.Uploader;
 
 namespace AssetStoreTools.Utility.Json
 {
 
-	/*
+    /*
 	 * JSON value structure 
 	 * 
 	 * Example:
@@ -29,7 +28,7 @@ namespace AssetStoreTools.Utility.Json
 	 * asset(v["hello"].AsString() == "world");
 	 * 
 	 */
-	public struct JsonValue
+    internal struct JsonValue
 	{
 		public JsonValue(object o)
 		{

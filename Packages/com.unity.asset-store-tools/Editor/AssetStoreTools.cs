@@ -22,7 +22,7 @@ namespace AssetStoreTools
         public static void ShowAssetStoreToolsValidator()
         {
             Type inspectorType = Type.GetType("UnityEditor.InspectorWindow,UnityEditor.dll");
-            var wnd = GetWindow<AssetStoreValidation>(typeof(AssetStoreUploader), inspectorType);
+            var wnd = GetWindow<AssetStoreValidator>(typeof(AssetStoreUploader), inspectorType);
             wnd.Show();
         }
 

@@ -1,0 +1,725 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+
+  <style>
+    .MainDiv {
+      display: none;
+    }
+
+    .show {
+      display: block;
+    }
+  </style>
+</head>
+
+<script>
+  let KoreanButtonClicked = () => {
+    let EnglishDiv = document.getElementById('EnglishDiv');
+    let KoreanDiv = document.getElementById('KoreanDiv');
+    if(EnglishDiv.classList.contains('show') == true) 
+      EnglishDiv.classList.remove('show')
+
+    if(KoreanDiv.classList.contains('show') == false)
+      KoreanDiv.classList.add('show')
+  }
+
+  let EnglishButtonClicked = () => {
+    let EnglishDiv = document.getElementById('EnglishDiv');
+    let KoreanDiv = document.getElementById('KoreanDiv');
+    if(EnglishDiv.classList.contains('show') == false) 
+      EnglishDiv.classList.add('show')
+
+    if(KoreanDiv.classList.contains('show') == true)
+      KoreanDiv.classList.remove('show')
+  }
+</script>
+
+<body class="stackedit">
+  <div class="stackedit__html">
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/Title_Main.gif?raw=true" alt="Logo"></p>
+<hr>
+<button id="EnglishButton" onclick='EnglishButtonClicked()'>English</button>
+<button id="KoreanButton" onclick='KoreanButtonClicked()'>한국어</button>
+<hr>
+<div class="MainDiv show" id="EnglishDiv">
+ 
+<h1 id="📌-path-note--update-v-2.0.2-">📌 Patch Note ( Update V 2.0.2 / Nov 08 2023)</h1>
+<ul>
+<li>Change namespace (PathGenerator to CurvedPathGenerator)</li>
+<li>Edit asset hierarchy</li>
+<li>Minor bug fixes</li>
+</ul>
+ 
+<hr>
+<h1 id="🗺-unity-curved-path-generator-v-2.0">🗺 Unity Curved Path Generator V 2.0</h1>
+<p> </p>
+<h1 id="💠-1.-introduction">💠 1. Introduction</h1>
+<p>Imagine that you make car running along curved road in Unity Scene.</p>
+<p>You can make this car with Animator, but there are some problems.</p>
+ 
+<h2 id="🔶-1-1-.-it-is-difficult-to-handling-object-between-keyframes.">🔶 1-1 . It is difficult to handling object between keyframes.</h2>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure2.png?raw=true" alt="image"></p>
+<p>Assum the object will move from red squre to blue squre.</p>
+<p>There are so many ways to move object.</p>
+<p>But If you implement this with Unity Animator, the Animator will choose the shortest path (orange line).</p>
+<hr>
+<h2 id="🔶-1-2-.-it-is-difficult-to-move-at-a-constant-speed">🔶 1-2 . It is difficult to move at a constant speed</h2>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure3.png?raw=true" alt="image"></p>
+<p>Suppose there is a path moving from a red square to a blue square through a green square as shown in the picture above.</p>
+<p>When the distances of each point are not equal, if the animation keyframes are distributed as follows 1:1</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure4.png?raw=true" alt="image"></p>
+<p>The speed at which the object moves in the two sections is different.</p>
+<p>So, if you want to make constant speed animation  when s1 and s2 are not equal,</p>
+<p>you should control keyframes to become S1 : S2 = ( t1 - t0 ) : ( t2 - t1 )</p>
+<p>Of course, It’s possible if you spend a lot of time.</p>
+<p>But if the path is curved, It will be very hard to calculate the ratio.</p>
+<hr>
+<h2 id="🔶-1-3-.-bézier-curve">🔶 1-3 . Bézier Curve</h2>
+<p>The common issue of problems 1-1 and 1-2 is’curve’.</p>
+<p>I was looking for how to express curves in Unity, and I found something called Bezier curves.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure5.gif?raw=true" alt="bezier-curve 01"></p>
+<p>First, think of a point that moves a straight line.</p>
+<p>There is a straight line and the point M is moving at a constant speed above it.</p>
+<p>The trajectory of this point M is  drawn as a simple straight line.</p>
+<p>At this time, t is a number indicating how far the line segment has been proportionally advanced.</p>
+<p>Add another line here and place a point on it that moves like an M.</p>
+<p>Then, the original point M is referred to as M0, and the new point is referred to as M1.</p>
+<p>The rules for moving M0 and M1 are the same as before.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure6.gif?raw=true" alt="bezier-curve 02"></p>
+<p>Here you can draw one more line connecting M0 and M1.</p>
+<p>The line naturally moves together when M0 and M1 move.</p>
+<p>You can put the point on that line, and let that point be B.</p>
+<p>And if you look at the trajectory drawn by point B, you can see that it becomes a curve drawn at a constant speed.</p>
+<p>The trajectory drawn by point B is called a quadratic Bezier curve.</p>
+<p>Below is the Bezier curve equation for time t.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure7.png?raw=true" alt="image"></p>
+<p>As you increase the control point, you can create a 3rd, 4th, 5th order … Bezier curve.</p>
+<p>As the control point increases, you can create sophisticated or complex curves,</p>
+<p>For this project, I thought that the quadratic Bezier curve was sufficient.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-2-.-environment">💠 2 . Environment</h1>
+<p>Unity Version : 2019.4.1f ↑</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-3-.-how-to-use">💠 3 . How to use</h1>
+<p>There are 2 scripts I will introduce.</p>
+<ul>
+<li><strong>PathGenerator</strong> : Script to make followable path the based on Bézier curve.</li>
+<li><strong>PathFollower</strong> : Script to follow the path created by “Path Generator” class.</li>
+</ul>
+<p>So let’s get started.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-1-.-package-import">🔶 3-1 . Package import</h2>
+<p>3-1-1 . You can download the <a href="https://github.com/KimYC1223/UnityPathGenerator/releases/tag/1.0">latest released unity package</a> or download <a href="https://github.com/KimYC1223/UnityPathGenerator">this repo</a>.</p>
+<p>3-1-2. Import Unity package.</p>
+<p>However, the following must be observed.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.PNG?raw=true" alt=""></p>
+<ul>
+<li>The files <code>PathFollowerGUI.cs</code>, <code>PathGeneratorGUI.cs</code>, and <code>PathGeneratorGUILanguage.cs</code> must be imported into the project, and they should be in <code>Assets/Editor/CurvedPathGenerator</code>.</li>
+</ul>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.PNG?raw=true" alt=""></p>
+<ul>
+<li>The files <code>PathFollower icon.PNG</code>, <code>PathFollowerGUI icon.PNG</code>, <code>PathGenerator icon.PNG</code>, <code>PathGeneratorGUI icon.PNG</code>, <code>PathGeneratorGUILanguage icon. PNG</code>, <code>PG_Anchor.PNG</code>, <code>PG_End.PNG</code>, <code>PG_Handler.PNG</code>, <code>PG_Node.PNG</code>, and <code>PG_Start.PNG</code> must be imported into the project, and they should be in <code>Assets/Gizmos/CurvedPathGenerator</code>.</li>
+</ul>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.PNG?raw=true" alt=""></p>
+<ul>
+<li>The files <code>PathFollowerScriptImg.PNG</code> and <code>PathGeneratorScriptImg.PNG</code> must be imported into the project, and they should be in <code>Assets/CurvedPathGenerator/Resources/Logo</code></li>
+</ul>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-2-.-generate-path">🔶 3-2 . Generate Path</h2>
+<h3 id="🔹-3-2-1-.-object-creation">🔹 3-2-1 . Object creation</h3>
+<p>Create an empty game object in your scene. (And rename it to “Path”.)</p>
+<p>This object becomes a curved path that can be followed.</p>
+<hr>
+<h3 id="🔹-3-2-2-.-컴포넌트-추가">🔹 3-2-2 . 컴포넌트 추가</h3>
+<p>Add <code>Path Generator</code> component to this object.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.PNG?raw=true" alt="figure8"></p>
+<p><code>Path Generator</code> is largely divided into 6 parts.</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Category</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Header part</td>
+<td align="left">Determine the nature of the path.</td>
+</tr>
+<tr>
+<td align="center">Node part</td>
+<td align="left">Shows a list of nodes that determine the origin, waypoint, and destination.</td>
+</tr>
+<tr>
+<td align="center">Angle part</td>
+<td align="left">Shows a list of angles that determine the shape of the curve.</td>
+</tr>
+<tr>
+<td align="center">Full Control Part</td>
+<td align="left">All nodes and angles can be collectively controlled.</td>
+</tr>
+<tr>
+<td align="center">Rendering part</td>
+<td align="left">Created curves can be visualized.</td>
+</tr>
+<tr>
+<td align="center">Editor-related parts</td>
+<td align="left">Editor settings for easy curve control</td>
+</tr>
+</tbody>
+</table><p> </p>
+<hr>
+<p> </p>
+<h4 id="🔘-3-2-2-1.-header-part">🔘 3-2-2-1. <strong>Header part</strong></h4>
+<p>The part that determines the nature of the Path.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.PNG?raw=true" alt="figure22"></p>
+<h5 id="path-density">3-2-2-1-1. <code>Path Density</code></h5>
+<p>Path density determines how accurately the curve is drawn.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure11.gif?raw=true" alt="figure11"></p>
+<p>The higher the number, the closer the curve is to the ideal, <strong>but too high and the object may behave erratically.</strong></p>
+<p><strong>Important point, <code>Path density</code> must always be greater than or equal to 2!</strong></p>
+<p>Recommended values are 30-50.</p>
+<h5 id="update-path-in-runtime">3-2-2-1-2. <code>Update path in runtime</code></h5>
+<p>If the <code>Update path in runtime</code> item is <code>True</code>, the path is updated every frame.</p>
+<p>Through this, even if the path changes in runtime, it is applied immediately.</p>
+<p>However, the amount of computation may increase.</p>
+<h5 id="change-to-closedopened-path">3-2-2-1-3. <code>Change to closed/opened path</code></h5>
+<p>Determines whether to connect the last node and the last node.</p>
+<hr>
+<h4 id="🔘-3-2-2-2.-node-part">🔘 3-2-2-2. <strong>Node part</strong></h4>
+<p>Shows a list of nodes that determine the origin, waypoint, and destination</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.PNG?raw=true" alt="figure23"></p>
+<h5 id="create-node">3-2-2-2-1. <code>Create node</code></h5>
+<p>Adds a node to the end of the list.</p>
+<h5 id="delete-node----button">3-2-2-2-2. <code>Delete node</code> : [-] Button</h5>
+<p>Remove the selected node.</p>
+<h5 id="edit-node--edit-button">3-2-2-2-3. <code>Edit node</code> : Edit Button</h5>
+<p>Edit the selected node.</p>
+<hr>
+<h4 id="🔘-3-2-2-3.-angle-part">🔘 3-2-2-3. <strong>Angle part</strong></h4>
+<p>Shows a list of angles that determine the shape of the curve.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.PNG?raw=true" alt="figure24"></p>
+<h5 id="edit-angle--edit-button">3-2-2-3-1. <code>Edit Angle</code> : Edit Button</h5>
+<p>Edit the selected angle.</p>
+<hr>
+<h5 id="🔘-3-2-2-4.-full-control-part">🔘 3-2-2-4. <strong>Full Control Part</strong></h5>
+<p>All nodes and angles can be collectively controlled.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.PNG?raw=true" alt="figure33"></p>
+<h5 id="x--y--z-to-0">3-2-2-4-1. <code>X / Y / Z to 0</code></h5>
+<p>Set the <code>X / Y / Z</code> values of all angles and nodes in this path to 0.</p>
+<h5 id="x--y--z-equalization">3-2-2-4-2. <code>X / Y / Z equalization</code></h5>
+<p>Average the <code>X / Y / Z</code> values of all angles and nodes in this path.</p>
+<h5 id="x--y--z-to-specific-value">3-2-2-4-3. <code>X / Y / Z to specific value</code></h5>
+<p>Make the <code>X / Y / Z</code> values of all angles and nodes in this path a specific value.</p>
+<hr>
+<h5 id="🔘-3-2-2-5.-rendering-part">🔘 3-2-2-5. <strong>Rendering part</strong></h5>
+<p>You can visualize the created curve as shown in the figure below.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure30.gif?raw=true" alt="figure30"></p>
+<blockquote>
+<p>There is a bug where the rendering is not displayed normally when the curved path is sharply bent.</p>
+</blockquote>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.PNG?raw=true" alt="figure25"></p>
+<h5 id="generate-path-mesh-in-runtime">3-2-2-5-1. <code>Generate path mesh in runtime</code></h5>
+<p>If <code>Generate path mesh in runtime</code> is set to <code>True</code>, create a mesh that can visualize the created curve.</p>
+<h5 id="texture-of-line-mesh">3-2-2-5-2. <code>Texture of line mesh</code></h5>
+<p>Texture of the mesh of the lines to be displayed.</p>
+<p>If the texture has a pattern like the picture below, it is good to express the flow.</p>
+<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.png?raw=true" width="256px">
+<blockquote>
+<p>Demo textures located at <code>/Assets/CurvedPathGenerator/DemoScene/Textures/</code></p>
+</blockquote>
+<p>If you want the texture to repeat, you must set the <code>Wrap Mode</code> to <code>Repeat</code>.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.png?raw=true" alt="figure26"></p>
+<p>Also, if you want to see the Material repeated in the Scene,</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.png?raw=true" alt="figure28"></p>
+<p>You need to turn on <code>Animated Materials</code>.</p>
+<h5 id="width-of-line-mesh">3-2-2-5-3. <code>Width of line mesh</code></h5>
+<p>The width of the line mesh to be displayed</p>
+<h5 id="scroll-speed">3-2-2-5-4. <code>Scroll speed</code></h5>
+<p>Scroll speed of the line texture to render. Can be set from -100 to 100.</p>
+<h5 id="opacity">3-2-2-5-5. <code>Opacity</code></h5>
+<p>Transparency of the line texture to be displayed.</p>
+<h5 id="filling">3-2-2-5-6. <code>Filling</code></h5>
+<p>Decide how far to draw the line mesh to be expressed. Can be set from 0 to 1</p>
+<h5 id="render-queue">3-2-2-5-7. <code>Render queue</code></h5>
+<p>Specifying the render queue order of materials</p>
+<hr>
+<h4 id="🔘-3-2-2-6.-editor-related-parts">🔘 3-2-2-6. <strong>Editor related parts</strong></h4>
+<p>Editor settings for easy curve control</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.PNG?raw=true" alt="figure29"></p>
+<h5 id="normal-mode">3-2-2-6-1. <code>Normal mode</code></h5>
+<p>This mode changes the Transform information (Position, Rotation, Scale) of the current object.</p>
+<p>This mode appears when an object is selected in Unity.</p>
+<h5 id="individual">3-2-2-6-2. <code>Individual</code></h5>
+<p>This mode allows you to edit the position of nodes and angles, not the current object.</p>
+<p>Each node and angle can be edited one by one.</p>
+<h5 id="total">3-2-2-6-3. <code>Total</code></h5>
+<p>This mode allows you to edit the positions of nodes and angles as a whole, not the current object.</p>
+<p>Selecting this mode allows you to control all nodes and angles at once.</p>
+<blockquote>
+<p>This can be useful when resetting the pivot of the path.</p>
+</blockquote>
+<h5 id="show-labels">3-2-2-6-4. <code>Show labels</code></h5>
+<p>If this option is <code>True</code>, the label is visible in the scene.</p>
+<h5 id="show-icons">3-2-2-6-5. <code>Show icons</code></h5>
+<p>If this option is <code>True</code>, the icon is shown in the scene.</p>
+<h5 id="change-to-top-view-mode">3-2-2-6-6. <code>Change to top view mode</code></h5>
+<p>You can switch to Top view mode looking down the scene from above.</p>
+<h5 id="guideline-colors">3-2-2-6-7. <code>Guideline colors</code></h5>
+<p>You can specify the color of the guidelines.</p>
+ 
+<hr>
+<h3 id="🔹-3-2-3-.-create-a-path">🔹 3-2-3 . Create a path</h3>
+<p>Use the above functions appropriately to create the path you want.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure31.gif?raw=true" alt="figure31"></p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-3-.-move-object">🔶 3-3 . Move Object</h2>
+<h3 id="🔹-3-3-1-.-create-object">🔹 3-3-1 . Create object</h3>
+<p>Add an empty object to move.</p>
+<p>This object becomes the object following the path created in 3-2.</p>
+<h3 id="🔹-3-3-2.-add-component">🔹 3-3-2. Add component</h3>
+<p>Add a “Path Follower” component to that object.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.PNG?raw=true" alt="figure32"></p>
+<p><code>Path Generator</code> is largely divided into two parts.</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Category</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">movement information part</td>
+<td align="left">determine the nature of the movement.</td>
+</tr>
+<tr>
+<td align="center">event part</td>
+<td align="left">Defines an event that occurs when a path is completed.</td>
+</tr>
+</tbody>
+</table><p> </p>
+<hr>
+<p> </p>
+<h4 id="🔘-3-3-2-1.-movement-information-part">🔘 3-3-2-1. movement information part</h4>
+<p>Define the characteristics of movement.</p>
+<h5 id="path">3-3-2-1-1. Path</h5>
+<p>Specifies the path to move. Just select <code>PathGenerator</code> in Scene.</p>
+<p>If <code>Path</code> is empty, <code>Path Follower</code> cannot be moved.</p>
+<h5 id="speed">3-3-2-1-2. Speed</h5>
+<p>Specifies the movement speed.</p>
+<p>The object moves along the given path at this speed.</p>
+<p>If you enter a value that is too fast, it may malfunction.</p>
+<h5 id="distance-threshold">3-3-2-1-3. Distance threshold</h5>
+<p>When the distance between the moving object and the next node becomes less than this value,</p>
+<p>It determines that the object has arrived at its destination and moves to the next node.</p>
+<p>If this value is too small or too large, it may malfunction.</p>
+<h5 id="turning-speed">3-3-2-1-4. Turning Speed</h5>
+<p>is the rotational speed of the object.</p>
+<h5 id="is-move">3-3-2-1-5. Is Move</h5>
+<p>If this value is <code>false</code>, the object does not move.</p>
+<h5 id="is-loop">3-3-2-1-6. Is Loop</h5>
+<p>If this value is <code>true</code>, the object will repeat its path infinitely.</p>
+<p>It doesn’t matter if the path is closed or open.</p>
+<hr>
+<h4 id="🔘-3-3-2-2.-event-part">🔘 3-3-2-2. <strong>Event part</strong></h4>
+<p>Defines a method to be executed when the route is completed.</p>
+<h5 id="execute-a-method">3-3-2-2-1. Execute a method</h5>
+<p>If this value is <code>true</code>, the method is executed every time the route is completed.</p>
+<p>At this time, if object’s <code>Is Loop</code> is <code>true</code>, the method is not executed forever.</p>
+<p>(Because I don’t think I’ve completed the route.)</p>
+ 
+ 
+<hr>
+<p> </p>
+<h1 id="💠-4-.-examples">💠 4 . Examples</h1>
+<h2 id="🔶-4-1-.-auto-driving">🔶 4-1 . Auto Driving</h2>
+<p>There may be many examples, but the best example is to create an object that runs along a given track.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure15.gif?raw=true" alt="figure15"></p>
+<p>I once made a car that runs on a circular track I got from the Asset Store.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure16.gif?raw=true" alt="figure16"></p>
+<p>With a little modification, you can implement a car that moves naturally even the wheels and steering wheel.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-4-2-.-planet-movement">🔶 4-2 . Planet Movement</h2>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure17.gif?raw=true" alt="figure17"></p>
+<p>You can express movements between planets like the solar system.</p>
+<p>This script also allows you to create circular paths and elliptical orbits like Comet Halley.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-5-.-qna">💠 5 . QnA</h1>
+<h2 id="🔶-5-1-.-my-git-blog">🔶 5-1 . My Git Blog</h2>
+<p>Thanks for read! check out <a href="https://kimyc1223.github.io/">my blog</a> too !</p>
+<h2 id="🔶-5-2-.-contact">🔶 5-2 . Contact</h2>
+<ul>
+<li>Create issue in <a href="https://github.com/KimYC1223/UnityPathGenerator/issues">this repo</a></li>
+<li><a href="mailto:kau_esc@naver.com">kau_esc@naver.com</a></li>
+<li><a href="mailto:kimyc1223@gmail.com">kimyc1223@gmail.com</a></li>
+<li><a href="mailto:kim.youngchan@yonsei.ac.kr">kim.youngchan@yonsei.ac.kr</a></li>
+</ul>
+</div>
+<div class="MainDiv" id="KoreanDiv">
+<h1 id="📌-패치노트--업데이트-v-2.0.2-">📌 패치노트 ( 업데이트 V 2.0.2 / 2023.11.08)</h1>
+<ul>
+<li>최신 Unity LTS 버전 (2022.3.12f1)에서 테스트를 진행했습니다.</li>
+<li>전체 코드 스타일을 코드 컨벤션에 맞게 수정했습니다.</li>
+<li>네임스페이스 변경 ( PathGenerator 에서 CurvedPathGenerator 로 )</li>
+<li>에셋 하이어라키 수정</li>
+<li>자잘한 버그 수정</li>
+</ul>
+ 
+<hr>
+<h1 id="🗺-유니티-곡선-경로-생성기-v-2.0">🗺 유니티 곡선 경로 생성기 V 2.0</h1>
+<p> </p>
+<h1 id="💠-1.-introduction-1">💠 1. Introduction</h1>
+<p>유니티에서 오브젝트를 곡선 및 직선 경로를 따라 움직이게 만드는 방법은 무엇일까?</p>
+<p>아마 가장 쉽고 직관적인 방법은 애니메이션을 사용하는 것일것이다.</p>
+<p>하지만 애니메이션을 통한 구현 방법은 아래와 같은 문제점이 있다.</p>
+<hr>
+<h2 id="🔶-1-1-.-키프레임-사이를-원하는-방법대로-조절하기-어렵다.">🔶 1-1 . 키프레임 사이를 원하는 방법대로 조절하기 어렵다.</h2>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure2.png?raw=true" alt="image"></p>
+<p>빨간 네모에서 파란 네모로 움직이는 애니메이션,</p>
+<p>즉 Position의 변화를 애니메이션으로 만든다고 하면</p>
+<p>경로는 위 그림처럼 무수히 많이 존재 할 수 있는데,</p>
+<p>애니메이션에서는 항상 가장 빨리 변할 수 있는 방향 (주황색 패스) 으로만 정해진다.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-1-2-.-일정한-속도로-움직이기-어렵다">🔶 1-2 . 일정한 속도로 움직이기 어렵다</h2>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure3.png?raw=true" alt="image"></p>
+<p>만약 위 그림처럼 빨간 네모에서 초록색 네모로, 그 후 파란색 네모로 움직이는 패쓰가 있다고 하자.</p>
+<p>이 때 각 지점사이의 거리가 같지 않다고 할 때,</p>
+<p>애니메이션 키프레임이 다음과 같이 분포한다면 (1:1 로)</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure4.png?raw=true" alt="image"></p>
+<p>두 부분에서 물체가 움직이는 속도는 다를것이다.</p>
+<p>따라서 위 상황처럼 s1과 s2가 같지 않을 때 일정한 속도의 애니메이션을 만들고 싶다면,</p>
+<p>S1 : S2 = ( t1 - t0 ) : ( t2 - t1 ) 이 되도록 키프레임을 제어해야 한다.</p>
+<p>물론 시간을 많이 투자하면 가능하겠지만,</p>
+<p>경로가 구부러지거나 그 수가 많아 비율을 계산하기 힘든 상황에선 불편 할 수 밖에 없다.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-1-3-.-bézier-곡선">🔶 1-3 . Bézier 곡선</h2>
+<p>위에서 알 수 있는 문제점 중 공통된 사항은 ‘곡선’이다.</p>
+<p>어떻게 하면 곡선을 나타 낼 수 있을까 찾아보다가, 베지어 곡선(Bézier curve)이라는 것을 찾아내었다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure5.gif?raw=true" alt="bezier-curve 01"></p>
+<p>일단 직선을 움직이는 점을 생각해본다.</p>
+<p>하나의 직선이 있고 그 위를 점 M이 일정 속도로 이동하고 있다.</p>
+<p>이 점 M의 궤적은 당연하지만 단순한 직선으로 그려진다.</p>
+<p>이때 t는 선분 위를 비율적으로 얼마나 나아갔는지를 나타내는 수치다.</p>
+<p>여기에 선을 하나 더 추가하고 그 위에 M처럼 이동하는 점을 놓아본다.</p>
+<p>그리고 원래의 점 M을 M0로, 새로운 점을 M1으로 한다.</p>
+<p>M0와 M1이 움직이는 규칙은 이전과 같다.</p>
+<p>M1이라는 점이 하나 더 늘었다 하더라도 특별히 복잡해질 것은 없다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure6.gif?raw=true" alt="bezier-curve 02"></p>
+<p>여기에서 M0와 M1을 잇는 선을 하나 더 그을 수 있다.</p>
+<p>그 선은 M0와 M1이 이동하면 자연스럽게 함께 움직이게 된다.</p>
+<p>그 선 위에 M0나 M1처럼 일정 속도로 이동하는 점을 놓을 수 있다. 그 점을 B라고 하자.</p>
+<p>그리고 점 B가 그리는 궤적을 살펴보면, 곡선이 되는 모습을 볼 수 있다.</p>
+<p>점 B가 그리는 궤적을 2차 베지어 곡선(Quadratic Bezier Curve)이라고 한다.</p>
+<p>아래는 시간 t에 대한 베지어 곡선 식이다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure7.png?raw=true" alt="image"></p>
+<p>조절점을 늘릴수록 3차, 4차, 5차 … 베지어 곡선을 만들 수 있다.</p>
+<p>차수가 늘어날 수록 정교하거나 복잡한 곡선을 만들 수 있지만,</p>
+<p>이번 프로젝트에서는 2차 베지어 곡선만으로도 충분하다고 생각했다.</p>
+<p>아래는 3차 베지어 곡선이다.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-2-.-환경">💠 2 . 환경</h1>
+<p>Unity 버전 : 2019.4.1f 이상</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-3-.-how-to-use-1">💠 3 . How to use</h1>
+<p>소개할 스크립트는 다음 2가지다.</p>
+<ul>
+<li><strong>PathGenerator</strong> : 베지어 곡선을 기반으로 따라갈 수 있는 경로를 만드는 스크립트.</li>
+<li><strong>PathFollower</strong> : “PathGenerator” 클래스에 의해 생성된 경로를 따르기 위한 스크립트</li>
+</ul>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-1-.-패키지-임포트">🔶 3-1 . 패키지 임포트</h2>
+<p>3-1-1 . <a href="https://github.com/KimYC1223/UnityPathGenerator/releases/tag/1.0">최신의 release된 unity package</a>를 다운로드 하거나, <a href="(https://github.com/KimYC1223/UnityPathGenerator).">이 repo</a>를 다운받으면 된다.</p>
+<p>3-1-2. 유니티 패키지를 임포트한다.</p>
+<p>단,다음과 같은 사항을 반드시 지켜야한다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure18.PNG?raw=true" alt=""></p>
+<ul>
+<li><code>PathFollowerGUI.cs</code>, <code>PathGeneratorGUI.cs</code>, <code>PathGeneratorGUILanguage.cs</code>라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, <code>Assets/Editor/CurvedPathGenerator</code> 라는 폴더에 있어야 한다.</li>
+</ul>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure19.PNG?raw=true" alt=""></p>
+<ul>
+<li><code>PathFollower icon.PNG</code>, <code>PathFollowerGUI icon.PNG</code>, <code>PathGenerator icon.PNG</code>, <code>PathGeneratorGUI icon.PNG</code>, <code>PathGeneratorGUILanguage icon.PNG</code>, <code>PG_Anchor.PNG</code>, <code>PG_End.PNG</code>, <code>PG_Handler.PNG</code>, <code>PG_Node.PNG</code>, <code>PG_Start.PNG</code>라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, <code>Assets/Gizmos/CurvedPathGenerator</code> 라는 폴더에 있어야 한다.</li>
+</ul>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure20.PNG?raw=true" alt=""></p>
+<ul>
+<li><code>PathFollowerScriptImg.PNG</code>, <code>PathGeneratorScriptImg.PNG</code> 라는 파일은 필수적으로 프로젝트에 임포트 되어야 하며, <code>Assets/CurvedPathGenerator/Resources/Logo</code> 라는 폴더에 있어야 한다.</li>
+</ul>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-2-.-generate-path-1">🔶 3-2 . Generate Path</h2>
+<h3 id="🔹-3-2-1-.-객체-생성">🔹 3-2-1 . 객체 생성</h3>
+<p>Scene에 빈 게임 개체를 만든다. (그리고 "Path"로 이름을 바꾼다.)</p>
+<p>이 개체는 따라갈 수 있는 곡선 경로가 된다.</p>
+<hr>
+<h3 id="🔹-3-2-2-.-컴포넌트-추가-1">🔹 3-2-2 . 컴포넌트 추가</h3>
+<p>이 개체에 <code>Path Generator</code> 컴포넌트 추가한다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure21.PNG?raw=true" alt="figure8"></p>
+<p><code>Path Generator</code>는 크게 6가지 부분으로 나뉜다.</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">분류</th>
+<th align="left">설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">헤더 파트</td>
+<td align="left">Path의 성질을 결정한다.</td>
+</tr>
+<tr>
+<td align="center">노드 파트</td>
+<td align="left">출발지, 경유지, 도착지를 결정하는 노드 리스트를 보여준다.</td>
+</tr>
+<tr>
+<td align="center">앵글 파트</td>
+<td align="left">곡선의 모양을 결정하는 앵글 리스트를 보여준다.</td>
+</tr>
+<tr>
+<td align="center">전체 제어 파트</td>
+<td align="left">모든 노드와 앵글을 일괄적으로 제어 할 수 있다.</td>
+</tr>
+<tr>
+<td align="center">렌더링 파트</td>
+<td align="left">만든 곡선을 가시화 할 수 있다.</td>
+</tr>
+<tr>
+<td align="center">에디터 관련 파트</td>
+<td align="left">곡선을 쉽게 제어 할 수 있는 에디터 설정</td>
+</tr>
+</tbody>
+</table><p> </p>
+<hr>
+<p> </p>
+<h4 id="🔘-3-2-2-1.-헤더-파트">🔘 3-2-2-1. <strong>헤더 파트</strong></h4>
+<p>Path의​	성질을 결정하는 부분.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure22.PNG?raw=true" alt="figure22"></p>
+<h5 id="path-density-1">3-2-2-1-1. <code>Path Density</code></h5>
+<p><code>Path density</code>는 곡선을 얼마나 정확하게 그릴지 결정한다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure11.gif?raw=true" alt="figure11"></p>
+<p>숫자가 높을수록 이상적인 곡선에 가깝지만 <strong>너무 높으면 개체가 비정상적으로 작동할 수 있다.</strong></p>
+<p><strong>중요한 점은, <code>Path density</code>는 항상 2 이상이어야 한다!</strong></p>
+<p>권장 값은 30~50.</p>
+<h5 id="update-path-in-runtime-1">3-2-2-1-2. <code>Update path in runtime</code></h5>
+<p><code>Update path in runtime</code>항목이 <code>True</code>이면, 경로가 매 frame마다 갱신된다.</p>
+<p>이를 통해 런타임에서 경로가 바뀌어도, 즉시 반영된다.</p>
+<p>하지만 연산량이 증가 할 수 있다.</p>
+<h5 id="change-to-closedopened-path-1">3-2-2-1-3. <code>Change to closed/opened path</code></h5>
+<p>가장 마지막 Node와 끝 Node를 연결할지 결정한다.</p>
+<hr>
+<h4 id="🔘-3-2-2-2.-노드-파트">🔘 3-2-2-2. <strong>노드 파트</strong></h4>
+<p>출발지, 경유지, 도착지를 결정하는 노드 리스트를 보여준다</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure23.PNG?raw=true" alt="figure23"></p>
+<h5 id="create-node-1">3-2-2-2-1. <code>Create node</code></h5>
+<p>리스트의 끝에 노드를 추가한다.</p>
+<h5 id="delete-node----버튼">3-2-2-2-2. <code>Delete node</code> : [-] 버튼</h5>
+<p>선택한 노드를 제거한다.</p>
+<h5 id="edit-node--edit-버튼">3-2-2-2-3. <code>Edit node</code> : Edit 버튼</h5>
+<p>선택한 노드의 값을 변경한다.</p>
+<hr>
+<h4 id="🔘-3-2-2-3.-앵글-파트">🔘 3-2-2-3. <strong>앵글 파트</strong></h4>
+<p>곡선의 모양을 결정하는 앵글 리스트를 보여준다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure24.PNG?raw=true" alt="figure24"></p>
+<h5 id="edit-angle--edit-버튼">3-2-2-3-1. <code>Edit Angle</code> : Edit 버튼</h5>
+<p>선택한 앵글의 값을 변경한다.</p>
+<hr>
+<h5 id="🔘-3-2-2-4.-전체-제어-파트">🔘 3-2-2-4. <strong>전체 제어 파트</strong></h5>
+<p>모든 노드와 앵글을 일괄적으로 제어 할 수 있다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure33.PNG?raw=true" alt="figure33"></p>
+<h5 id="xyz-to-0">3-2-2-4-1. <code>X/Y/Z to 0</code></h5>
+<p>이 경로의 모든 앵글과 노드의 <code>X/Y/Z</code>값을 0으로 만든다.</p>
+<h5 id="xyz-equalization">3-2-2-4-2. <code>X/Y/Z equalization</code></h5>
+<p>이 경로의 모든 앵글과 노드의 <code>X/Y/Z</code>값을 평균값으로 만든다.</p>
+<h5 id="xyz-to-specific-value">3-2-2-4-3. <code>X/Y/Z to specific value</code></h5>
+<p>이 경로의 모든 앵글과 노드의 <code>X/Y/Z</code>값을 특정값으로 만든다.</p>
+<hr>
+<h5 id="🔘-3-2-2-5.-렌더링-파트">🔘 3-2-2-5. <strong>렌더링 파트</strong></h5>
+<p>아래 그림처럼 만든 곡선을 가시화 할 수 있다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure30.gif?raw=true" alt="figure30"></p>
+<blockquote>
+<p>곡선 경로가 급격히 꺾일 경우, 렌더링이 정상적으로 표현되지 않는 버그가 있다.</p>
+</blockquote>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure25.PNG?raw=true" alt="figure25"></p>
+<h5 id="generate-path-mesh-in-runtime-1">3-2-2-5-1. <code>Generate path mesh in runtime</code></h5>
+<p><code>Generate path mesh in runtime</code>이 <code>True</code>일 경우, 만든 곡선을 가시화 할 수 있는 mesh를 만든다.</p>
+<h5 id="texture-of-line-mesh-1">3-2-2-5-2. <code>Texture of line mesh</code></h5>
+<p>표현할 라인의 mesh의 Texture.</p>
+<p>Texture가 아래 그림처럼 패턴을 가지고 있을 경우, 흐름을 표현하기 좋다.</p>
+<img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure27.png?raw=true" width="256px">
+<blockquote>
+<p><code>/Assets/CurvedPathGenerator/DemoScene/Textures/</code>에 위치한 데모용 텍스처</p>
+</blockquote>
+<p>텍스처가 반복되길 원한다면, 반드시 <code>Wrap Mode</code>를 <code>Repeat</code>로 설정해야한다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure26.png?raw=true" alt="figure26"></p>
+<p>또한, Scene에서도 해당 Material이 반복되는것을 보고싶다면</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure28.png?raw=true" alt="figure28"></p>
+<p><code>Animated Materials</code>를 켜주어야 한다.</p>
+<h5 id="width-of-line-mesh-1">3-2-2-5-3. <code>Width of line mesh</code></h5>
+<p>표현할 라인 mesh의 너비</p>
+<h5 id="scroll-speed-1">3-2-2-5-4. <code>Scroll speed</code></h5>
+<p>표현할 라인 texture의 스크롤 속도. -100 ~ 100까지 설정 가능.</p>
+<h5 id="opacity-1">3-2-2-5-5. <code>Opacity</code></h5>
+<p>표현할 라인 texture의 투명도.</p>
+<h5 id="filling-1">3-2-2-5-6. <code>Filling</code></h5>
+<p>표현할 라인 mesh를 어디까지 그릴지 결정. 0 ~ 1까지 설정 가능</p>
+<h5 id="render-queue-1">3-2-2-5-7. <code>Render queue</code></h5>
+<p>Material의 render queue 순서 지정</p>
+<hr>
+<h4 id="🔘-3-2-2-6.-에디터-관련-파트">🔘 3-2-2-6. <strong>에디터 관련 파트</strong></h4>
+<p>곡선을 쉽게 제어 할 수 있는 에디터 설정</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure29.PNG?raw=true" alt="figure29"></p>
+<h5 id="normal-mode-1">3-2-2-6-1. <code>Normal mode</code></h5>
+<p>현재 오브젝트의 Transform 정보(Position, Rotation, Scale)를 변경 하는 모드이다.</p>
+<p>기존 Unity에서 오브젝트를 선택했을 때 나타나는 모드이다.</p>
+<h5 id="individual-1">3-2-2-6-2. <code>Individual</code></h5>
+<p>현재 오브젝트가 아닌, 노드와 앵글들의 위치를 편집 할 수 있는 모드이다.</p>
+<p>각 노드와 앵글을 하나씩 편집 할 수 있다.</p>
+<h5 id="total-1">3-2-2-6-3. <code>Total</code></h5>
+<p>현재 오브젝트가 아닌, 노드와 앵글들의 위치를 전체적으로 편집 할 수 있는 모드이다.</p>
+<p>이 모드를 선택하면 전체 노드와 앵글을 한 번에 제어 할 수 있다.</p>
+<blockquote>
+<p>path의 pivot을 재설정 할 때 유용하게 사용 할 수 있다.</p>
+</blockquote>
+<h5 id="show-labels-1">3-2-2-6-4. <code>Show labels</code></h5>
+<p>이 옵션이 <code>True</code>이면, Scene에서 Label이 보여진다.</p>
+<h5 id="show-icons-1">3-2-2-6-5. <code>Show icons</code></h5>
+<p>이 옵션이 <code>True</code>이면, Scene에서 icon이 보여진다.</p>
+<h5 id="change-to-top-view-mode-1">3-2-2-6-6. <code>Change to top view mode</code></h5>
+<p>Scene을 위에서 내려다보는 Top view 모드로 전환 할 수 있다.</p>
+<h5 id="guideline-colors-1">3-2-2-6-7. <code>Guideline colors</code></h5>
+<p>가이드라인의 색상을 지정 할 수 있다.</p>
+ 
+<hr>
+<h3 id="🔹-3-2-3-.-경로를-만들기">🔹 3-2-3 . 경로를 만들기</h3>
+<p>위 기능들을 적절히 사용하여 원하는 path를 만들면 된다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure31.gif?raw=true" alt="figure31"></p>
+<p> </p>
+<hr>
+<p> </p>
+<h2 id="🔶-3-3-.-move-object-1">🔶 3-3 . Move Object</h2>
+<h3 id="🔹-3-3-1-.-객체-만들기">🔹 3-3-1 . 객체 만들기</h3>
+<p>움직일 빈 오브젝트를 추가한다.</p>
+<p>이 객체는 3-2에서 만든 경로를 따라가는 오브젝트가 된다.</p>
+<h3 id="🔹-3-3-2.-컴포넌트-추가">🔹 3-3-2. 컴포넌트 추가</h3>
+<p>그 객체에 “Path Follower” 컴포넌트를 추가한다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure32.PNG?raw=true" alt="figure32"></p>
+<p><code>Path Generator</code>는 크게 2가지 부분으로 나뉜다.</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">분류</th>
+<th align="left">설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">움직임 정보 파트</td>
+<td align="left">움직임의 성질을 결정한다.</td>
+</tr>
+<tr>
+<td align="center">이벤트 파트</td>
+<td align="left">path를 완주했을 때 발생하는 이벤트를 정의한다.</td>
+</tr>
+</tbody>
+</table><p> </p>
+<hr>
+<p> </p>
+<h4 id="🔘-3-3-2-1.-움직임-정보-파트">🔘 3-3-2-1. 움직임 정보 파트</h4>
+<p>움직임의 특성을 정의한다.</p>
+<h5 id="path-1">3-3-2-1-1. Path</h5>
+<p>움직일 path를 지정한다. Scene에 있는 <code>PathGenerator</code>를 선택하면 된다.</p>
+<p><code>Path</code>가 비어있을 경우, <code>Path Follower</code>는 움직일 수 없다.</p>
+<h5 id="speed-1">3-3-2-1-2. Speed</h5>
+<p>움직일 속도를 지정한다.</p>
+<p>물체는 이 속도로 주어진 path를 따라 움직인다.</p>
+<p>너무 빠른 값을 입력하면, 오작동할 수 있다.</p>
+<h5 id="distance-threshold-1">3-3-2-1-3. Distance threshold</h5>
+<p>움직이는 물체와 다음 노드 사이의 거리가 이 값 이하로 될 경우,</p>
+<p>물체가 목적지에 도착했다고 판단하여 다음 노드로 움직인다.</p>
+<p>이 값이 너무 작거나 클 경우, 오작동 할 수 있다.</p>
+<h5 id="turning-speed-1">3-3-2-1-4. Turning Speed</h5>
+<p>물체의 회전 속도이다.</p>
+<h5 id="is-move-1">3-3-2-1-5. Is Move</h5>
+<p>이 값이 <code>false</code>이면, 물체가 움직이지 않는다.</p>
+<h5 id="is-loop-1">3-3-2-1-6. Is Loop</h5>
+<p>이 값이 <code>true</code>이면, 물체가 경로를 무한히 반복해서 움직입니다.</p>
+<p>경로가 닫힌경로인지, 열린경로인지와는 상관없습니다.</p>
+<hr>
+<h4 id="🔘-3-3-2-2.-이벤트-파트">🔘 3-3-2-2. <strong>이벤트 파트</strong></h4>
+<p>경로를 완주했을 때, 실행시킬 메소드를 정의한다.</p>
+<h5 id="execute-a-methods">3-3-2-2-1. Execute a methods</h5>
+<p>이 값이 <code>true</code>이면, 경로를 완주했을 때 마다 메소드를 실행시킨다.</p>
+<p>이때, 물체의 <code>Is Loop</code>가 <code>true</code>일 경우, 해당 메소드가 영원히 실행되지 않는다.</p>
+<p>(경로를 완주했다고 생각하지 않기 때문이다.)</p>
+ 
+ 
+<hr>
+<p> </p>
+<h1 id="💠-4-.-예제">💠 4 . 예제</h1>
+<h2 id="🔶-4-1-.-자동차-주행">🔶 4-1 . 자동차 주행</h2>
+<p>많은 예가 있을 수 있지만 가장 좋은 예는 주어진 트랙을 따라 달리는 객체를 만드는 것이다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure15.gif?raw=true" alt="figure15"></p>
+<p>에셋스토어에서 받은 원형 트랙을 달리는 자동차를 만든 적이 있다.</p>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure16.gif?raw=true" alt="figure16"></p>
+<p>본 스크립트를 약간 수정하고 응용하여 바퀴와 핸들까지 자연스럽게 움직이는 자동차를 구현할 수 있다.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h3 id="🔶-4-2-.-행성-궤도">🔶 4-2 . 행성 궤도</h3>
+<p><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/figure17.gif?raw=true" alt="figure17"></p>
+<p>태양계와 같은 행성 간의 움직임을 표현할 수 있다.</p>
+<p>이 스크립트를 사용하면 핼리 혜성과 같은 타원 궤도를 생성할 수 도 있다.</p>
+<p> </p>
+<hr>
+<p> </p>
+<h1 id="💠-5-.-qna-1">💠 5 . QnA</h1>
+<h2 id="🔶-5-1-.-깃-블로그">🔶 5-1 . 깃 블로그</h2>
+<p>읽어주셔서 감사합니다. 제 <a href="https://kimyc1223.github.io/">블로그</a>도 확인해보세요!</p>
+<h2 id="🔶-5-2-.-컨택트">🔶 5-2 . 컨택트</h2>
+<ul>
+<li><a href="https://github.com/KimYC1223/UnityPathGenerator/issues">이 repo 이슈 페이지</a>에 이슈를 등록하시면 됩니다</li>
+<li><a href="mailto:kau_esc@naver.com">kau_esc@naver.com</a></li>
+<li><a href="mailto:kimyc1223@gmail.com">kimyc1223@gmail.com</a></li>
+<li><a href="mailto:kim.youngchan@yonsei.ac.kr">kim.youngchan@yonsei.ac.kr</a></li>
+</ul>
+</div>
+<p>  </p>
+</div>
+</body>
+
+</html>
