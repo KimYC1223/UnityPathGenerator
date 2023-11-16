@@ -1,4 +1,4 @@
-[![assetstoreGuide](https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/assetstore.png?raw=true)](https://assetstore.unity.com/packages/tools/game-toolkits/curved-path-generator-243012)
+<a href="https://assetstore.unity.com/packages/tools/game-toolkits/curved-path-generator-243012"><img src="https://github.com/KimYC1223/UnityPathGenerator/blob/master/ReadmeImage/assetstore.png?raw=true" alt="Asset Store Guide" width="100%"></a>
 
 <br>
 
